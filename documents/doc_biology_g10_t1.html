@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Physics - Grade 10 Term 1 Documents</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2575fc">
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background: #e0f0ff;
+    color: #1e3a8a;
+  }
+
+  header {
+    background: #1e3a8a;
+    color: white;
+    padding: 1rem;
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .container {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .doc-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #fff;
+    border-radius: 8px;
+    padding: 12px 15px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    cursor: pointer;
+    transition: 0.2s;
+  }
+
+  .doc-card:hover {
+    background: #cce4ff;
+  }
+
+  .doc-card h4 {
+    margin: 0;
+    font-size: 16px;
+    flex: 1;
+  }
+
+  .doc-card .doc-bar {
+    width: 120px;
+    height: 20px;
+    background: #1e3a8a;
+    border-radius: 5px;
+    flex-shrink: 0;
+  }
+
+  .doc-card a {
+    text-decoration: none;
+    color: white;
+    padding: 5px 10px;
+    background: #1e3a8a;
+    border-radius: 5px;
+    margin-left: 10px;
+    font-size: 14px;
+  }
+
+  .doc-card a:hover {
+    background: #334155;
+  }
+</style>
+</head>
+<body>
+
+<header>Physics - Grade 10 Term 1 Documents</header>
+
+<div class="container">
+
+  <div class="doc-card">
+    <h4>Chapter 1 - Motion Notes</h4>
+    <div class="doc-bar"></div>
+    <a href="https://drive.google.com/file/d/1Qpa3wk0xrueOUBI5oLqmO5B9gBu7piQ1/preview" target="_blank">View</a>
+  </div>
+
+  <div class="doc-card">
+    <h4>Chapter 2 - Forces Notes</h4>
+    <div class="doc-bar"></div>
+    <a href="https://drive.google.com/file/d/YOUR_FILE_ID/view" target="_blank">View</a>
+  </div>
+
+  <div class="doc-card">
+    <h4>Chapter 3 - Work & Energy</h4>
+    <div class="doc-bar"></div>
+    <a href="https://drive.google.com/file/d/YOUR_FILE_ID/view" target="_blank">View</a>
+  </div>
+
+</div>
+<script>
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("sw.js")
+    .then(() => console.log("Service Worker registered"))
+    .catch((err) => console.log("SW registration failed:", err));
+}
+</script>
+
+</body>
+</html>
