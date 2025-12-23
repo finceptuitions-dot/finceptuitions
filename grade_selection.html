@@ -1,0 +1,40 @@
+<!-- Grade Selection Page -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Select Grade</title>
+<link rel="stylesheet" href="style.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2575fc">
+<script>
+    function goToTerm(grade){
+        const urlParams = new URLSearchParams(window.location.search);
+        const subject = urlParams.get('subject');
+        const type = urlParams.get('type'); // videos or documents
+        window.location.href = `term_selection.html?subject=${subject}&grade=${grade}&type=${type}`;
+    }
+</script>
+</head>
+<body>
+<header class="display-header">
+    <h2>Select a Grade</h2>
+</header>
+<div class="container scrollable">
+    <div class="subject-grid">
+        <div class="subject-card"><button onclick="goToTerm(10)">Grade 10</button></div>
+        <div class="subject-card"><button onclick="goToTerm(11)">Grade 11</button></div>
+        <div class="subject-card"><button onclick="goToTerm(12)">Grade 12</button></div>
+    </div>
+</div>
+<script>
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("sw.js")
+    .then(() => console.log("Service Worker registered"))
+    .catch((err) => console.log("SW registration failed:", err));
+}
+</script>
+
+</body>
+</html>

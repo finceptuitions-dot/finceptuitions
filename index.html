@@ -1,0 +1,146 @@
+<!-- File: index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Learn With Enock Academy</title>
+<link rel="stylesheet" href="style.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2575fc">
+<style>
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(to bottom, #e0f0ff, #ffffff);
+    color: #1e3a8a;
+    text-align: center;
+}
+
+header {
+    padding: 20px;
+    font-size: 28px;
+    font-weight: bold;
+    text-align: center; /* Centered header */
+}
+
+.hero {
+    padding: 60px 20px;
+}
+
+.hero h2 {
+    font-size: 48px;
+    margin-bottom: 20px;
+}
+
+.hero p {
+    font-size: 18px;
+    margin-bottom: 40px;
+}
+
+.hero .buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.hero .buttons a {
+    text-decoration: none;
+    padding: 15px 30px;
+    border-radius: 8px;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.hero .btn-join {
+    background-color: #1e3a8a;
+    color: white;
+}
+
+.hero .btn-join:hover {
+    background-color: #334155;
+}
+
+.hero .btn-login {
+    background-color: white;
+    color: #1e3a8a;
+    border: 2px solid #1e3a8a;
+}
+
+.hero .btn-login:hover {
+    background-color: #e0f0ff;
+}
+
+.hero .btn-syllabus {
+    background-color: #cce4ff;
+    color: #1e3a8a;
+    border: 2px solid #1e3a8a;
+}
+
+.hero .btn-syllabus:hover {
+    background-color: #99c2ff;
+    color: white;
+}
+
+.quotes {
+    font-size: 22px;
+    margin-bottom: 30px;
+    font-weight: bold;
+    min-height: 30px; /* prevent jumping */
+    color: #1e3a8a;
+}
+</style>
+</head>
+<body>
+
+<header>Learn With Enock Academy</header>
+
+<section class="hero">
+    <!-- Rotating Quotes -->
+    <div class="quotes" id="quote-container">
+        "Knowledge is the key to your success!"
+    </div>
+
+    <h2>Welcome to Learn With Enock Academy</h2>
+    <p>Your one-stop platform for high school learning resources in Physics, Chemistry, Math, and Biology.</p>
+    <div class="buttons">
+        <a href="signup.html" class="btn-join">Join Us</a>
+        <a href="login.html" class="btn-login">Login</a>
+        <a href="syllabus.html" class="btn-syllabus">New Syllabus</a>
+    </div>
+</section>
+
+<footer>
+    &copy; 2025 Learn With Enock Academy | Email: enockacademy1@gmail.com | WhatsApp: 0768037965
+</footer>
+
+<script>
+// Rotating quotes using JavaScript
+const quotes = [
+    "Knowledge is the key to your success!",
+    "Stay curious, keep learning, and explore new horizons.",
+    "Education is the passport to the future."
+];
+
+let quoteIndex = 0;
+const quoteContainer = document.getElementById('quote-container');
+
+function rotateQuote() {
+    quoteIndex = (quoteIndex + 1) % quotes.length;
+    quoteContainer.textContent = quotes[quoteIndex];
+}
+
+// Change quote every 3 seconds
+setInterval(rotateQuote, 3000);
+</script>
+<script>
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("sw.js")
+    .then(() => console.log("Service Worker registered"))
+    .catch((err) => console.log("SW registration failed:", err));
+}
+</script>
+
+</body>
+</html>

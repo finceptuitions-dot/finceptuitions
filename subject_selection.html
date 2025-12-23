@@ -1,0 +1,41 @@
+<!-- Subject Selection Page for Videos/Documents -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Select Subject</title>
+<link rel="stylesheet" href="style.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2575fc">
+</head>
+<body>
+<header class="display-header">
+    <h2>Select a Subject</h2>
+</header>
+<div class="container scrollable">
+    <div class="subject-grid">
+        <div class="subject-card">
+            <a href="grade_selection.html?subject=physics&type=videos">Physics</a>
+        </div>
+        <div class="subject-card">
+            <a href="grade_selection.html?subject=chemistry&type=videos">Chemistry</a>
+        </div>
+        <div class="subject-card">
+            <a href="grade_selection.html?subject=biology&type=videos">Biology</a>
+        </div>
+        <div class="subject-card">
+            <a href="grade_selection.html?subject=math&type=videos">Mathematics</a>
+        </div>
+    </div>
+</div>
+<script>
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("sw.js")
+    .then(() => console.log("Service Worker registered"))
+    .catch((err) => console.log("SW registration failed:", err));
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,42 @@
+<!-- Term Selection Page -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Select Term</title>
+<link rel="stylesheet" href="style.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2575fc">
+<script>
+    function openDisplay(term){
+        const urlParams = new URLSearchParams(window.location.search);
+        const subject = urlParams.get('subject');
+        const grade = urlParams.get('grade');
+        const type = urlParams.get('type');
+        // Open final display page in new tab
+        window.open(`${type}_${subject}_g${grade}_t${term}.html`, '_blank');
+    }
+</script>
+</head>
+<body>
+<header class="display-header">
+    <h2>Select a Term</h2>
+</header>
+<div class="container scrollable">
+    <div class="subject-grid">
+        <div class="subject-card"><button onclick="openDisplay(1)">Term 1</button></div>
+        <div class="subject-card"><button onclick="openDisplay(2)">Term 2</button></div>
+        <div class="subject-card"><button onclick="openDisplay(3)">Term 3</button></div>
+    </div>
+</div>
+<script>
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("sw.js")
+    .then(() => console.log("Service Worker registered"))
+    .catch((err) => console.log("SW registration failed:", err));
+}
+</script>
+
+</body>
+</html>

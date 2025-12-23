@@ -1,0 +1,225 @@
+<!-- Floating Calculator Button -->
+<button id="openCalcBtn" title="Open Calculator">🧮</button>
+
+<!-- Calculator Popup -->
+<div id="calcPopup" class="calc-popup">
+  <div class="calc-header" id="calcHeader">
+    <span>Calculator</span>
+    <button id="closeCalcBtn">&times;</button>
+  </div>
+  <input type="text" id="calcDisplay" disabled>
+  <div class="calc-buttons">
+    <button onclick="clearDisplay()">C</button>
+    <button onclick="deleteLast()">⌫</button>
+    <button onclick="appendSymbol('%')">%</button>
+    <button onclick="appendSymbol('/')">÷</button>
+
+    <button onclick="appendSymbol('7')">7</button>
+    <button onclick="appendSymbol('8')">8</button>
+    <button onclick="appendSymbol('9')">9</button>
+    <button onclick="appendSymbol('*')">×</button>
+
+    <button onclick="appendSymbol('4')">4</button>
+    <button onclick="appendSymbol('5')">5</button>
+    <button onclick="appendSymbol('6')">6</button>
+    <button onclick="appendSymbol('-')">−</button>
+
+    <button onclick="appendSymbol('1')">1</button>
+    <button onclick="appendSymbol('2')">2</button>
+    <button onclick="appendSymbol('3')">3</button>
+    <button onclick="appendSymbol('+')">+</button>
+
+    <button onclick="appendSymbol('0')" class="zero">0</button>
+    <button onclick="appendSymbol('.')">.</button>
+    <button onclick="calculate()" class="equal">=</button>
+  </div>
+</div>
+
+<style>
+  /* Floating Calculator Button */
+  #openCalcBtn {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    background-color: #1e3a8a;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    cursor: pointer;
+    font-size: 22px;
+    box-shadow: 0 6px 12px rgba(30, 58, 138, 0.3);
+    transition: 0.3s;
+    z-index: 999;
+  }
+
+  #openCalcBtn:hover {
+    background-color: #334155;
+    transform: scale(1.1);
+  }
+
+  /* Popup Container */
+  .calc-popup {
+    position: fixed;
+    bottom: 100px;
+    right: 40px;
+    width: 270px;
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 8px 25px rgba(30, 41, 59, 0.3);
+    display: none;
+    flex-direction: column;
+    z-index: 1000;
+    overflow: hidden;
+    user-select: none;
+  }
+
+  .calc-header {
+    background: #334155;
+    color: #f8fafc;
+    padding: 10px 12px;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: move;
+  }
+
+  #closeCalcBtn {
+    background: none;
+    border: none;
+    color: #f8fafc;
+    font-size: 22px;
+    cursor: pointer;
+  }
+
+  #calcDisplay {
+    width: 90%;
+    margin: 12px auto;
+    height: 40px;
+    font-size: 20px;
+    text-align: right;
+    padding: 5px;
+    border: 1px solid #94a3b8;
+    border-radius: 6px;
+    background: #f1f5f9;
+    color: #1e293b;
+  }
+
+  .calc-buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .calc-buttons button {
+    padding: 12px;
+    font-size: 18px;
+    border: none;
+    border-radius: 8px;
+    background: #e0e7ff;
+    color: #334155;
+    cursor: pointer;
+    transition: 0.2s;
+    font-weight: 600;
+  }
+
+  .calc-buttons button:hover {
+    background: #c7d2fe;
+  }
+
+  .equal {
+    background: #1e3a8a;
+    color: white;
+    grid-column: span 2;
+  }
+
+  .equal:hover {
+    background: #334155;
+  }
+
+  .zero {
+    grid-column: span 2;
+  }
+</style>
+
+<script>
+  const calcPopup = document.getElementById('calcPopup');
+  const openCalcBtn = document.getElementById('openCalcBtn');
+  const closeCalcBtn = document.getElementById('closeCalcBtn');
+  const calcDisplay = document.getElementById('calcDisplay');
+
+  openCalcBtn.onclick = () => calcPopup.style.display = 'flex';
+  closeCalcBtn.onclick = () => calcPopup.style.display = 'none';
+
+  function appendSymbol(symbol) {
+    calcDisplay.value += symbol;
+  }
+
+  function clearDisplay() {
+    calcDisplay.value = '';
+  }
+
+  function deleteLast() {
+    calcDisplay.value = calcDisplay.value.slice(0, -1);
+  }
+
+  function calculate() {
+    try {
+      calcDisplay.value = eval(calcDisplay.value.replace('×', '*').replace('÷', '/'));
+    } catch {
+      calcDisplay.value = 'Error';
+    }
+  }
+
+  // --- Draggable functionality ---
+  dragElement(document.getElementById("calcPopup"));
+
+  function dragElement(elmnt) {
+    const header = document.getElementById("calcHeader");
+    let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+
+    if (header) {
+      header.onmousedown = dragMouseDown;
+    } else {
+      elmnt.onmousedown = dragMouseDown;
+    }
+
+    function dragMouseDown(e) {
+      e = e || window.event;
+      e.preventDefault();
+      pos3 = e.clientX;
+      pos4 = e.clientY;
+      document.onmouseup = closeDragElement;
+      document.onmousemove = elementDrag;
+    }
+
+    function elementDrag(e) {
+      e = e || window.event;
+      e.preventDefault();
+      pos1 = pos3 - e.clientX;
+      pos2 = pos4 - e.clientY;
+      pos3 = e.clientX;
+      pos4 = e.clientY;
+      elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+      elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+      elmnt.style.bottom = "auto";
+      elmnt.style.right = "auto";
+    }
+
+    function closeDragElement() {
+      document.onmouseup = null;
+      document.onmousemove = null;
+    }
+  }
+
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("sw.js")
+    .then(() => console.log("Service Worker registered"))
+    .catch((err) => console.log("SW registration failed:", err));
+}
+
+
+</script>

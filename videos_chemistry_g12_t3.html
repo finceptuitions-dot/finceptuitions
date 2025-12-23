@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chemistry - Grade 10 Term 1 Videos</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2575fc">
+<style>
+  body { 
+    font-family: Arial, sans-serif; 
+    background: #e8f5e9; 
+    margin: 0;
+  }
+  header {
+    background: #1976d2; /* blue color for chemistry */
+    color: white;
+    padding: 15px;
+    text-align: center;
+    font-size: 22px;
+    font-weight: bold;
+  }
+  .container {
+    padding: 15px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+  }
+  .video-card {
+    width: 350px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0px 3px 6px rgba(0,0,0,0.15);
+    padding: 10px;
+  }
+  iframe {
+    width: 100%;
+    height: 220px;
+    border-radius: 10px;
+    border: none;
+  }
+  h4 {
+    margin: 10px 0;
+    color: #0d47a1; /* dark blue for titles */
+  }
+</style>
+</head>
+<body>
+
+<header>Chemistry - Grade 10 Term 1 Videos</header>
+
+<div class="container">
+
+  <!-- 1st Video -->
+  <div class="video-card">
+    <h4>Introduction to Chemistry</h4>
+    <iframe 
+      src="https://drive.google.com/file/d/YOUR_FILE_ID_1/preview" 
+      allow="autoplay">
+    </iframe>
+  </div>
+
+  <!-- 2nd Video -->
+  <div class="video-card">
+    <h4>Atomic Structure</h4>
+    <iframe 
+      src="https://drive.google.com/file/d/YOUR_FILE_ID_2/preview" 
+      allow="autoplay">
+    </iframe>
+  </div>
+
+  <!-- 3rd Video -->
+  <div class="video-card">
+    <h4>Chemical Reactions</h4>
+    <iframe 
+      src="https://drive.google.com/file/d/YOUR_FILE_ID_3/preview" 
+      allow="autoplay">
+    </iframe>
+  </div>
+
+</div>
+<script>
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("sw.js")
+    .then(() => console.log("Service Worker registered"))
+    .catch((err) => console.log("SW registration failed:", err));
+}
+</script>
+
+</body>
+</html>

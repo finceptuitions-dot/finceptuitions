@@ -1,0 +1,60 @@
+<!-- File: videos/videos_math_g11_t1.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mathematics - Grade 11 Term 1 Videos</title>
+<link rel="stylesheet" href="../style.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2575fc">
+<style>
+  body { font-family: Arial; background: #ffe0b2; margin: 0; }
+  header { background: #f57c00; color: #fff; padding: 1rem; text-align: center; }
+  .container { display: flex; flex-wrap: wrap; justify-content: center; padding: 1rem; gap: 1rem; overflow-y: auto; height: 90vh; }
+  .video-card { background: #fff; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); width: 320px; padding: 10px; }
+  video { width: 100%; border-radius: 8px; }
+</style>
+</head>
+<body>
+<header><h2>Mathematics - Grade 11 Term 1 Videos</h2></header>
+<div class="container">
+
+  <!-- 1st Video (Correct ID Fixed) -->
+  <div class="video-card">
+    <h4>Introduction to Cells</h4>
+    <iframe 
+      src="https://drive.google.com/file/d/1jM5UVBnxV5NRFQ0oY2iDlmkf2bN5aOVE/preview" 
+      allow="autoplay">
+    </iframe>
+  </div>
+
+  <!-- 2nd Video -->
+  <div class="video-card">
+    <h4>Photosynthesis Process</h4>
+    <iframe 
+      src="https://drive.google.com/file/d/1M21Vsaf-W8RdLOcSFxwQen8LJssG1plv/preview" 
+      allow="autoplay">
+    </iframe>
+  </div>
+
+  <!-- 3rd Video -->
+  <div class="video-card">
+    <h4>Respiration in Organisms</h4>
+    <iframe 
+      src="https://drive.google.com/file/d/FILE_ID_HERE/preview" 
+      allow="autoplay">
+    </iframe>
+  </div>
+
+</div>
+<script>
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("sw.js")
+    .then(() => console.log("Service Worker registered"))
+    .catch((err) => console.log("SW registration failed:", err));
+}
+</script>
+
+</body>
+</html>

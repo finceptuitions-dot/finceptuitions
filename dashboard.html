@@ -1,0 +1,81 @@
+<!-- Dashboard Page: Top welcome, middle random videos, bottom navigation -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard - finceptuitions</title>
+<link rel="stylesheet" href="style.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2575fc">
+<script src="script.js" defer></script>
+</head>
+<body>
+<!-- Top Section -->
+
+<header class="dashboard-header">
+    <div class="left">
+        <button id="menu-btn">&#9776;</button>
+        <!-- Hamburger menu goes here -->
+        <nav id="hamburger-menu" class="hamburger-menu">
+            <ul>
+                <li><a href="profile.html">Profile</a></li>
+                <li><a href="task.html">Task</a></li>
+                <li><a href="quizzes.html">Quizzes</a></li>
+                <li><a href="calculator.html">Calculator</a></li>
+                <li><a href="motivation.html">Motivation</a></li>
+              <li><a href="about.html">About Us</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class="center">
+        <h1>Welcome To Fincep Tuitions</h2>
+        <p id="trial-days">you're remaining with:</p>
+    <button id="install-button" style=" margin-top: 10px;"></button>
+    </div>
+
+    <div class="right">
+        <button id="notif-btn">&#128276;</button>
+        <button id="logout-btn" onclick="location.href='index.html'">&#128274;</button>
+    </div>
+</header>
+
+<!-- Middle Section: Random Videos -->
+<main class="dashboard-main">
+    <h3>What's New?</h3>
+    <div class="random-videos">
+        <div class="video-card">
+            <h4>coming soon</h4>
+            <a href="videos/vid_grade10_term1.html" target="_blank">Open</a>
+        </div>
+        <div class="video-card">
+            <h4>coming soon</h4>
+            <a href="videos/vid_grade11_term2.html" target="_blank">Open</a>
+        </div>
+        <div class="video-card">
+            <h4>coming soon</h4>
+            <a href="videos/vid_grade12_term3.html" target="_blank">Open</a>
+        </div>
+        <div class="video-card">
+            <h4>coming soon</h4>
+            <a href="videos/vid_grade12_term3.html" target="_blank">Open</a>
+        </div>
+    </div>
+</main>
+
+<!-- Bottom Navigation -->
+<nav class="dashboard-nav">
+    <a href="home.html">Home</a>
+    <a href="subject_selection.html">Videos</a>
+    <a href="subject_selection_docs.html">Documents</a>
+    <a href="pastpapers.html">past papers</a>
+</nav>
+...
+<!-- Your dashboard content above -->
+<!-- Load the floating calculator -->
+<iframe src="calculator.html" style="position:fixed;bottom:0;right:0;width:0;height:0;border:none;" id="calcFrame"></iframe>
+
+
+</body>
+</html>

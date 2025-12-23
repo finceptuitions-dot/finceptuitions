@@ -1,0 +1,121 @@
+<!-- File: videos/videos_biology_g10_t3.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Biology - Grade 10 Term 3 Videos</title>
+<link rel="stylesheet" href="../style.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2575fc">
+<style>
+  body { 
+    font-family: 'Segoe UI', Arial, sans-serif; 
+    background: #e8f5e9; 
+    margin: 0; 
+  }
+  header { 
+    background: #388e3c; 
+    color: #fff; 
+    padding: 1rem; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  }
+  header h2 {
+    margin: 0;
+    font-size: 1.4rem;
+  }
+
+  /* Back arrow button */
+  .back-btn {
+    position: absolute;
+    left: 15px;
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  .back-btn:hover {
+    transform: scale(1.2);
+  }
+
+  .container { 
+    display: flex; 
+    flex-wrap: wrap; 
+    justify-content: center; 
+    padding: 1rem; 
+    gap: 1rem; 
+    overflow-y: auto; 
+    height: 90vh; 
+  }
+  .video-card { 
+    background: #fff; 
+    border-radius: 12px; 
+    box-shadow: 0 3px 6px rgba(0,0,0,0.2); 
+    width: 320px; 
+    padding: 12px; 
+    transition: transform 0.2s ease; 
+  }
+  .video-card:hover {
+    transform: scale(1.03);
+  }
+  video { 
+    width: 100%; 
+    border-radius: 10px; 
+    outline: none;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <!-- Back Arrow Button -->
+  <button class="back-btn" onclick="window.history.back()">&#8592;</button>
+  <h2>Biology - Grade 10 Term 3 Videos</h2>
+</header>
+
+<div class="container">
+
+  <!-- 1st Video (Correct ID Fixed) -->
+  <div class="video-card">
+    <h4>Introduction to Cells</h4>
+    <iframe 
+      src="https://drive.google.com/file/d/1jM5UVBnxV5NRFQ0oY2iDlmkf2bN5aOVE/preview" 
+      allow="autoplay">
+    </iframe>
+  </div>
+
+  <!-- 2nd Video -->
+  <div class="video-card">
+    <h4>Photosynthesis Process</h4>
+    <iframe 
+      src="https://drive.google.com/file/d/1M21Vsaf-W8RdLOcSFxwQen8LJssG1plv/preview" 
+      allow="autoplay">
+    </iframe>
+  </div>
+
+  <!-- 3rd Video -->
+  <div class="video-card">
+    <h4>Respiration in Organisms</h4>
+    <iframe 
+      src="https://drive.google.com/file/d/FILE_ID_HERE/preview" 
+      allow="autoplay">
+    </iframe>
+  </div>
+
+</div>
+<script>
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("sw.js")
+    .then(() => console.log("Service Worker registered"))
+    .catch((err) => console.log("SW registration failed:", err));
+}
+</script>
+
+</body>
+</html>

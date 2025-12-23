@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Select Subject (Documents)</title>
+<link rel="stylesheet" href="style.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2575fc">
+<script>
+  function goToGrade(subject) {
+      const type = 'documents';
+      window.location.href = `grade_selection_docs.html?subject=${subject}&type=${type}`;
+  }
+</script>
+<style>
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #fdfbfb, #ebedee);
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
+
+header {
+  background: #64b5f6;
+  color: white;
+  padding: 20px;
+  border-radius: 0 0 15px 15px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 70vh;
+}
+
+.subject-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 20px;
+  width: 80%;
+  max-width: 500px;
+}
+
+.subject-card button {
+  background-color: #90caf9;
+  color: white;
+  font-size: 18px;
+  border: none;
+  padding: 15px 40px;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.subject-card button:hover {
+  background-color: #42a5f5;
+  transform: scale(1.05);
+}
+</style>
+</head>
+<body>
+<header>
+  <h2>Select a Subject (Documents)</h2>
+</header>
+
+<div class="container">
+  <div class="subject-grid">
+    <div class="subject-card"><button onclick="goToGrade('physics')">Physics</button></div>
+    <div class="subject-card"><button onclick="goToGrade('chemistry')">Chemistry</button></div>
+    <div class="subject-card"><button onclick="goToGrade('biology')">Biology</button></div>
+    <div class="subject-card"><button onclick="goToGrade('math')">Mathematics</button></div>
+  </div>
+</div>
+<script>
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("sw.js")
+    .then(() => console.log("Service Worker registered"))
+    .catch((err) => console.log("SW registration failed:", err));
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Discussion Forum</title>
+<style>
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f5f7fa;
+  }
+
+  header {
+    background-color: #1e3a8a;
+    color: white;
+    padding: 15px;
+    font-size: 20px;
+    text-align: center;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 100;
+  }
+
+  .messages {
+    margin-top: 60px;
+    margin-bottom: 120px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    height: calc(100vh - 140px);
+  }
+
+  .message {
+    background: #fff;
+    padding: 10px 15px;
+    border-radius: 12px;
+    margin: 5px 0;
+    max-width: 70%;
+    word-wrap: break-word;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    position: relative;
+  }
+
+  .message.user {
+    align-self: flex-end;
+    background-color: #cce4ff;
+  }
+
+  .message.other {
+    align-self: flex-start;
+    background-color: #e2e8f0;
+  }
+
+  .sender {
+    font-weight: bold;
+    cursor: pointer;
+    margin-bottom: 4px;
+  }
+
+  .time {
+    font-size: 10px;
+    color: #555;
+    margin-top: 4px;
+  }
+
+  .replies {
+    margin-left: 20px;
+    margin-top: 5px;
+  }
+
+  .reply {
+    background: #f1f5f9;
+    margin-top: 5px;
+    padding: 5px 10px;
+    border-radius: 10px;
+    font-size: 14px;
+    position: relative;
+  }
+
+  .reply .sender {
+    font-weight: bold;
+    cursor: pointer;
+    display: inline-block;
+  }
+
+  .reply-btn {
+    font-size: 12px;
+    color: #1e3a8a;
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin-left: 10px;
+  }
+
+  .new-post {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    box-shadow: 0 -2px 5px rgba(0,0,0,0.2);
+  }
+
+  .new-post input {
+    flex: 1;
+    padding: 10px;
+    border-radius: 20px;
+    border: 1px solid #ccc;
+    outline: none;
+  }
+
+  .new-post button {
+    margin-top: 5px;
+    background-color: #1e3a8a;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 10px 15px;
+    cursor: pointer;
+    align-self: flex-end;
+  }
+
+  .new-post button:hover {
+    background-color: #334155;
+  }
+</style>
+</head>
+<body>
+
+<header>Discussion Forum</header>
+
+<div class="messages" id="messages">
+  <!-- Messages and replies will appear here -->
+</div>
+
+<div class="new-post">
+  <input type="text" id="message-input" placeholder="Write a new post...">
+  <button onclick="sendMessage()">Send</button>
+</div>
+
+<script>
+  const messagesContainer = document.getElementById('messages');
+  const input = document.getElementById('message-input');
+
+  // Store messages with replies
+  let messages = [
+    {id:1, sender:"Admin", text:"Welcome to the discussion!", replies:[
+      {sender:"John", text:"Hi everyone!"}
+    ]},
+    {id:2, sender:"John Doe", text:"Hello everyone!", replies:[
+      {sender:"Admin", text:"Hi John, welcome!"}
+    ]}
+  ];
+
+  // Render all messages
+  function renderMessages() {
+    messagesContainer.innerHTML = "";
+    messages.forEach(msg => {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'message ' + (msg.sender === "You" ? "user" : "other");
+
+      const sender = document.createElement('div');
+      sender.className = 'sender';
+      sender.textContent = msg.sender;
+      sender.onclick = () => alert(msg.sender + "'s profile opens here.");
+
+      const msgText = document.createElement('div');
+      msgText.textContent = msg.text;
+
+      const time = document.createElement('div');
+      time.className = 'time';
+      time.textContent = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+
+      // Replies container
+      const repliesContainer = document.createElement('div');
+      repliesContainer.className = 'replies';
+      msg.replies.forEach(rep => {
+        const repDiv = document.createElement('div');
+        repDiv.className = 'reply';
+
+        const repSender = document.createElement('span');
+        repSender.className = 'sender';
+        repSender.textContent = rep.sender;
+        repSender.onclick = () => alert(rep.sender + "'s profile opens here.");
+
+        const repText = document.createElement('span');
+        repText.textContent = ": " + rep.text;
+
+        repDiv.appendChild(repSender);
+        repDiv.appendChild(repText);
+        repliesContainer.appendChild(repDiv);
+      });
+
+      // Reply button
+      const replyBtn = document.createElement('button');
+      replyBtn.className = 'reply-btn';
+      replyBtn.textContent = "Reply";
+      replyBtn.onclick = () => {
+        const replyText = prompt("Enter your reply to " + msg.sender + ":");
+        if(replyText) {
+          msg.replies.push({sender:"You", text:replyText});
+          renderMessages();
+          messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+      };
+
+      msgDiv.appendChild(sender);
+      msgDiv.appendChild(msgText);
+      msgDiv.appendChild(time);
+      msgDiv.appendChild(replyBtn);
+      msgDiv.appendChild(repliesContainer);
+
+      messagesContainer.appendChild(msgDiv);
+    });
+
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  }
+
+  function sendMessage() {
+    const text = input.value.trim();
+    if(!text) return;
+    messages.push({id:Date.now(), sender:"You", text:text, replies:[]});
+    input.value = '';
+    renderMessages();
+  }
+
+  // Initial render
+  renderMessages();
+</script>
+<script>
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("sw.js")
+    .then(() => console.log("Service Worker registered"))
+    .catch((err) => console.log("SW registration failed:", err));
+}
+</script>
+
+
+</body>
+</html>
