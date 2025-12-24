@@ -3,32 +3,125 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Select Term</title>
-<link rel="stylesheet" href="style.css">
+<title>Select Term (Documents)</title>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#2575fc">
+<meta name="theme-color" content="#0B3D91">
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f0f8ff;
+    text-align: center;
+}
+
+/* Header */
+header {
+    background-color: #0B3D91;
+    color: white;
+    padding: 20px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    position: sticky;
+    top: 0;
+    z-index: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+/* Back button */
+.back-btn {
+    position: absolute;
+    left: 15px;
+    top: 20px;
+    font-size: 24px;
+    color: white;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+.back-btn:hover {
+    color: #87CEFA;
+}
+
+header h2 {
+    margin: 0;
+    font-size: 1.5em;
+}
+
+/* Container & vertical grid */
+.container {
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.subject-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 200px;
+}
+
+/* Term cards */
+.subject-card {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s, background-color 0.2s;
+    padding: 20px 0;
+}
+
+.subject-card:hover {
+    transform: translateY(-5px);
+    background-color: #87CEFA;
+}
+
+.subject-card button {
+    background: none;
+    border: none;
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #0B3D91;
+    cursor: pointer;
+    outline: none;
+}
+
+.subject-card button:hover {
+    color: white;
+}
+</style>
 <script>
-    function openDisplay(term){
-        const urlParams = new URLSearchParams(window.location.search);
-        const subject = urlParams.get('subject');
-        const grade = urlParams.get('grade');
-        // Always open from the "documents" folder
-        const filepath = `documents/doc_${subject}_g${grade}_t${term}.html`;
-        window.open(filepath, '_blank');
-    }
+function openDisplay(term){
+    const urlParams = new URLSearchParams(window.location.search);
+    const subject = urlParams.get('subject');
+    const grade = urlParams.get('grade');
+    // Always open from the "documents" folder
+    const filepath = `documents/doc_${subject}_g${grade}_t${term}.html`;
+    window.open(filepath, '_blank');
+}
 </script>
 </head>
 <body>
-<header class="display-header">
-    <h2>Select a Term</h2>
+
+<header>
+    <a href="javascript:history.back()" class="back-btn">&#8592;</a>
+    <h2>Select a Term </h2>
 </header>
-<div class="container scrollable">
+
+<div class="container">
     <div class="subject-grid">
         <div class="subject-card"><button onclick="openDisplay(1)">Term 1</button></div>
         <div class="subject-card"><button onclick="openDisplay(2)">Term 2</button></div>
         <div class="subject-card"><button onclick="openDisplay(3)">Term 3</button></div>
     </div>
 </div>
+
 <script>
 if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("sw.js")
