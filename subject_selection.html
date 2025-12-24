@@ -5,14 +5,101 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Select Subject</title>
-<link rel="stylesheet" href="style.css">
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#2575fc">
+<meta name="theme-color" content="#0B3D91">
+<style>
+/* Reset and body */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f0f8ff; /* same as dashboard background */
+}
+
+/* Header */
+.display-header {
+    background-color: #0B3D91; /* same dashboard header */
+    color: white;
+    padding: 20px 10px;
+    text-align: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    position: sticky;
+    top: 0;
+    z-index: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.display-header h2 {
+    margin: 0;
+    font-size: 1.5em;
+}
+
+/* Back button */
+.back-btn {
+    position: absolute;
+    left: 15px;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+/* Scrollable container */
+.container.scrollable {
+    padding: 15px;
+    overflow-y: auto;
+    max-height: calc(100vh - 90px); /* header + some margin */
+}
+
+/* Subject grid */
+.subject-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 15px;
+}
+
+/* Subject card */
+.subject-card {
+    background-color: white;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    transition: transform 0.2s, background-color 0.2s;
+    padding: 30px 10px;
+    cursor: pointer;
+}
+
+.subject-card:hover {
+    transform: translateY(-5px);
+    background-color: #87CEFA; /* same hover as dashboard video cards */
+}
+
+.subject-card a {
+    color: #0B3D91; /* dark blue text */
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1.1em;
+    display: block;
+}
+
+.subject-card a:hover {
+    color: white;
+}
+</style>
 </head>
 <body>
+
 <header class="display-header">
+    <a href="dashboard.html" class="back-btn">&#8592;</a>
     <h2>Select a Subject</h2>
 </header>
+
 <div class="container scrollable">
     <div class="subject-grid">
         <div class="subject-card">
@@ -29,6 +116,7 @@
         </div>
     </div>
 </div>
+
 <script>
 if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("sw.js")
