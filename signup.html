@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sign Up - Learn With Enock Academy</title>
+<title>Sign Up - Finceptuitions</title>
 
 <meta name="theme-color" content="#2575fc">
 
@@ -45,8 +45,6 @@ body {
     border: 1px solid #ccc;
     width: 100%;
 }
-
-/* Password field with eye */
 .password-box {
     position: relative;
 }
@@ -59,7 +57,6 @@ body {
     font-size: 18px;
     user-select: none;
 }
-
 .signup-container button {
     margin-top: 20px;
     padding: 12px;
@@ -69,6 +66,15 @@ body {
     border: none;
     border-radius: 8px;
     cursor: pointer;
+}
+.signup-container p {
+    text-align: center;
+    margin-top: 15px;
+}
+.signup-container a {
+    color: #1e3a8a;
+    text-decoration: none;
+    font-weight: bold;
 }
 </style>
 </head>
@@ -93,15 +99,17 @@ body {
 
         <button type="submit">Sign Up</button>
     </form>
+
+    <!-- ✅ Added login link -->
+    <p>Already have an account? <a href="login.html">Login</a></p>
 </div>
 
-<!-- Firebase v8 (NO modules – works everywhere) -->
+<!-- Firebase v8 (stable everywhere) -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
 <script>
-/* Firebase config */
 var firebaseConfig = {
   apiKey: "AIzaSyCBFObaNdHuPDVM3eo-1qtJ0ENQ3vf1oOc",
   authDomain: "finceponlinetuitions.firebaseapp.com",
@@ -111,19 +119,18 @@ var firebaseConfig = {
   appId: "1:562071475466:web:1823cb7c22b64729dd16f3"
 };
 
-/* Init Firebase */
 firebase.initializeApp(firebaseConfig);
 
 var auth = firebase.auth();
 var db = firebase.firestore();
 
-/* Toggle password visibility */
+/* 👁 Toggle password */
 function togglePassword() {
     var input = document.getElementById("password");
     input.type = input.type === "password" ? "text" : "password";
 }
 
-/* Signup handler */
+/* ✅ Signup runs ONLY on submit */
 document.getElementById("signup-form").addEventListener("submit", function(e) {
     e.preventDefault();
 
@@ -134,14 +141,13 @@ document.getElementById("signup-form").addEventListener("submit", function(e) {
     auth.createUserWithEmailAndPassword(email, password)
     .then(function(cred) {
 
-        // Save user info (does NOT block redirect)
         db.collection("users").doc(cred.user.uid).set({
             name: name,
             email: email,
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         }).catch(function(){});
 
-        // ✅ Welcome alert
+        // ✅ Alert AFTER clicking Sign Up
         alert("Welcome " + name + "! Your account has been created successfully.");
 
         // ✅ Redirect
