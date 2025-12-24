@@ -4,59 +4,79 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Past Papers</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0B3D91">
 <style>
 body {
     margin: 0;
     font-family: Arial, sans-serif;
-    background-color: #f0f8ff; /* Navy Blue */
-    color: #H0B3D91;
+    background-color: #f0f8ff;
+    color: #0B3D91;
 }
 
 /* Year Bar */
 .year-bar {
     display: flex;
     overflow-x: auto;
-    background-color: #001F3F;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    background-color: #0B3D91;
     padding: 10px;
     position: sticky;
     top: 0;
     z-index: 1000;
 }
 
+/* Year Buttons */
 .year-bar button {
-    background-color: #87CEFA; /* Light Sky Blue */
-    color: #001F3F;
+    background-color: #87CEFA;
+    color: #0B3D91;
     border: none;
     padding: 8px 16px;
     margin-right: 8px;
     border-radius: 20px;
     cursor: pointer;
     white-space: nowrap;
+    font-weight: bold;
+    flex-shrink: 0;
 }
 
 .year-bar button.active {
     background-color: #00BFFF;
+    color: white;
 }
 
-/* Back Button below year bar (symbol only, no animation) */
+/* Custom scrollbar for year bar */
+.year-bar::-webkit-scrollbar {
+    height: 8px;
+}
+.year-bar::-webkit-scrollbar-track {
+    background: #0B3D91;
+}
+.year-bar::-webkit-scrollbar-thumb {
+    background-color: #87CEFA;
+    border-radius: 20px;
+}
+
+/* Back Button - simple rectangle with arrow */
 .back-btn {
     display: inline-block;
     margin: 10px 15px;
     padding: 6px 12px;
-    background-color: #87CEFA;
-    color: #001F3F;
+    background-color: #00BFFF;
+    color: white;
     text-decoration: none;
-    border-radius: 50%;
-    font-size: 18px;
+    border-radius: 8px;
+    font-size: 16px;
     font-weight: bold;
     line-height: 1;
     text-align: center;
-    width: 36px;
-    height: 36px;
+    transition: background 0.3s ease, transform 0.2s ease;
 }
 
-.back-btn{
-    background-color: #00BFFF; /* optional instant hover effect */
+.back-btn:hover {
+    background-color: #42a5f5;
+    transform: translateY(-2px);
 }
 
 /* Content */
@@ -66,7 +86,7 @@ body {
 
 /* Subject Cards */
 .subject-card {
-    background-color: #001F3F; /* Navy */
+    background-color: #0B3D91;
     border-radius: 10px;
     margin-bottom: 15px;
     cursor: pointer;
@@ -75,7 +95,7 @@ body {
 
 .subject-card h3 {
     margin: 0;
-    color: #87CEFA; /* Light Sky Blue title */
+    color: #87CEFA;
     font-size: 20px;
     padding: 15px;
     border-bottom: 1px solid #87CEFA;
@@ -90,8 +110,8 @@ body {
 
 /* Paper Cards */
 .paper {
-    background-color: #87CEFA; /* Light Sky Blue */
-    color: #001F3F;
+    background-color: #87CEFA;
+    color: #0B3D91;
     border-radius: 8px;
     padding: 12px;
     margin: 10px 15px;
@@ -108,8 +128,8 @@ body {
 }
 
 .paper a {
-    background-color: #001F3F; /* Navy */
-    color: #fff;
+    background-color: #0B3D91;
+    color: white;
     text-decoration: none;
     padding: 6px 12px;
     border-radius: 5px;
@@ -127,7 +147,7 @@ body {
 <div class="year-bar" id="yearBar"></div>
 
 <!-- Back to Dashboard -->
-<a href="dashboard.html" class="back-btn">back</a>
+<a href="dashboard.html" class="back-btn">&#8592; Back</a>
 
 <!-- Content -->
 <div class="content" id="content"></div>
