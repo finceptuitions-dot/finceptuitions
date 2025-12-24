@@ -1,11 +1,9 @@
-<!-- File: index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Learn With fincep tuitions</title>
-<link rel="stylesheet" href="style.css">
+<title>Learn With Fincep Tuitions</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#2575fc">
 <style>
@@ -17,32 +15,35 @@ body {
     text-align: center;
 }
 
-header {
-    padding: 20px;
-    font-size: 28px;
-    font-weight: bold;
-    text-align: center; /* Centered header */
-}
-
+/* Hero Section */
 .hero {
     padding: 60px 20px;
 }
 
 .hero h2 {
-    font-size: 48px;
-    margin-bottom: 20px;
+    font-size: 40px; /* slightly reduced */
+    margin: 15px 0 20px;
 }
 
 .hero p {
-    font-size: 18px;
-    margin-bottom: 40px;
+    font-size: 16px; /* slightly smaller */
+    margin-bottom: 30px;
 }
 
+/* Logo below quotes */
+.logo {
+    max-width: 150px;
+    height: auto;
+    margin: 20px 0;
+}
+
+/* Buttons */
 .hero .buttons {
     display: flex;
     justify-content: center;
     gap: 20px;
-    flex-wrap: wrap;
+    flex-wrap: nowrap; /* single row */
+    flex-shrink: 0;
 }
 
 .hero .buttons a {
@@ -51,6 +52,10 @@ header {
     border-radius: 8px;
     font-weight: bold;
     transition: 0.3s;
+    white-space: nowrap;
+    flex: 1 1 auto; 
+    max-width: 200px; 
+    text-align: center;
 }
 
 .hero .btn-join {
@@ -83,18 +88,43 @@ header {
     color: white;
 }
 
+/* Quotes */
 .quotes {
     font-size: 22px;
-    margin-bottom: 30px;
+    margin-bottom: 15px;
     font-weight: bold;
-    min-height: 30px; /* prevent jumping */
+    min-height: 30px; 
     color: #1e3a8a;
+}
+
+/* Footer */
+footer {
+    padding: 15px;
+    font-size: 14px;
+    color: #1e3a8a;
+    background-color: #f0f8ff;
+}
+
+/* Responsive adjustments */
+@media (max-width: 500px) {
+    .hero h2 {
+        font-size: 32px;
+    }
+    .hero p {
+        font-size: 14px;
+    }
+    .hero .buttons a {
+        padding: 12px 20px;
+        font-size: 14px;
+        max-width: 150px;
+    }
+    .logo {
+        max-width: 120px;
+    }
 }
 </style>
 </head>
 <body>
-
-<header>Learn With Fincep Tuitions</header>
 
 <section class="hero">
     <!-- Rotating Quotes -->
@@ -102,8 +132,12 @@ header {
         "Knowledge is the key to your success!"
     </div>
 
+    <!-- Logo below quotes -->
+    <img src="ficep.jpg" alt="Fincep Logo" class="logo">
+
     <h2>Welcome to Learn With Fincep Tuitions</h2>
     <p>Your one-stop platform for high school learning resources in Physics, Chemistry, Math, and Biology.</p>
+    
     <div class="buttons">
         <a href="signup.html" class="btn-join">Get Started</a>
         <a href="login.html" class="btn-login">Login</a>
@@ -116,7 +150,7 @@ header {
 </footer>
 
 <script>
-// Rotating quotes using JavaScript
+// Rotating quotes
 const quotes = [
     "Knowledge is the key to your success!",
     "Stay curious, keep learning, and explore new horizons.",
@@ -131,10 +165,8 @@ function rotateQuote() {
     quoteContainer.textContent = quotes[quoteIndex];
 }
 
-// Change quote every 3 seconds
 setInterval(rotateQuote, 3000);
-</script>
-<script>
+
 if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("sw.js")
     .then(() => console.log("Service Worker registered"))
@@ -144,5 +176,3 @@ if ("serviceWorker" in navigator) {
 
 </body>
 </html>
-
-
