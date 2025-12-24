@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sign Up - Learn With Enock Academy</title>
-<link rel="stylesheet" href="style.css">
-<link rel="manifest" href="manifest.json">
+
 <meta name="theme-color" content="#2575fc">
+
 <style>
 body {
     font-family: Arial, sans-serif;
@@ -43,18 +43,23 @@ body {
     padding: 10px;
     border-radius: 8px;
     border: 1px solid #ccc;
-    outline: none;
+    width: 100%;
 }
-.password-container {
+
+/* Password field with eye */
+.password-box {
     position: relative;
 }
-.password-container i {
+.password-box span {
     position: absolute;
-    right: 10px;
+    right: 12px;
     top: 50%;
     transform: translateY(-50%);
     cursor: pointer;
+    font-size: 18px;
+    user-select: none;
 }
+
 .signup-container button {
     margin-top: 20px;
     padding: 12px;
@@ -65,95 +70,89 @@ body {
     border-radius: 8px;
     cursor: pointer;
 }
-.signup-container button:hover {
-    background-color: #334155;
-}
-.signup-container p {
-    text-align: center;
-    margin-top: 15px;
-}
-.signup-container a {
-    color: #1e3a8a;
-    text-decoration: none;
-}
 </style>
 </head>
+
 <body>
 
 <div class="signup-container">
     <h2>Create Account</h2>
+
     <form id="signup-form">
-        <label for="name">Full Name</label>
+        <label>Full Name</label>
         <input type="text" id="name" required>
 
-        <label for="email">Email</label>
+        <label>Email</label>
         <input type="email" id="email" required>
 
-        <label for="password">Password</label>
-        <div class="password-container">
+        <label>Password</label>
+        <div class="password-box">
             <input type="password" id="password" required>
-            <i onclick="togglePassword('password')">&#128065;</i>
+            <span onclick="togglePassword()">👁</span>
         </div>
 
         <button type="submit">Sign Up</button>
     </form>
-    <p>Already have an account? <a href="login.html">Login</a></p>
 </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
-import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+<!-- Firebase v8 (NO modules – works everywhere) -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
-// Firebase config
-const firebaseConfig = {
-   apiKey: "AIzaSyCBFObaNdHuPDVM3eo-1qtJ0ENQ3vf1oOc",
+<script>
+/* Firebase config */
+var firebaseConfig = {
+  apiKey: "AIzaSyCBFObaNdHuPDVM3eo-1qtJ0ENQ3vf1oOc",
   authDomain: "finceponlinetuitions.firebaseapp.com",
   projectId: "finceponlinetuitions",
-  storageBucket: "finceponlinetuitions.firebasestorage.app",
+  storageBucket: "finceponlinetuitions.appspot.com",
   messagingSenderId: "562071475466",
-  appId: "1:562071475466:web:1823cb7c22b64729dd16f3",
-  measurementId: "G-D8S53TJCZ0"
+  appId: "1:562071475466:web:1823cb7c22b64729dd16f3"
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+/* Init Firebase */
+firebase.initializeApp(firebaseConfig);
 
-// Toggle password visibility
-window.togglePassword = function(id){
-    const input = document.getElementById(id);
-    input.type = input.type === 'password' ? 'text' : 'password';
-};
+var auth = firebase.auth();
+var db = firebase.firestore();
 
-// Sign-up handling
-document.getElementById('signup-form').addEventListener('submit', async (e)=>{
+/* Toggle password visibility */
+function togglePassword() {
+    var input = document.getElementById("password");
+    input.type = input.type === "password" ? "text" : "password";
+}
+
+/* Signup handler */
+document.getElementById("signup-form").addEventListener("submit", function(e) {
     e.preventDefault();
-    const name = document.getElementById('name').value.trim();
-    const email = document.getElementById('email').value.trim();
-    const password = document.getElementById('password').value;
 
-    try{
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
+    var name = document.getElementById("name").value.trim();
+    var email = document.getElementById("email").value.trim();
+    var password = document.getElementById("password").value;
 
-        await setDoc(doc(db, 'users', user.uid), {
-            name,
-            email,
-            memberSince: new Date().toLocaleDateString(),
-            disabled: false,
-            lastLogin: serverTimestamp()
-        });
+    auth.createUserWithEmailAndPassword(email, password)
+    .then(function(cred) {
 
-        alert(`Welcome ${name}! Account created.`);
-        location.href = 'dashboard.html';
-    } catch(error){
+        // Save user info (does NOT block redirect)
+        db.collection("users").doc(cred.user.uid).set({
+            name: name,
+            email: email,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        }).catch(function(){});
+
+        // ✅ Welcome alert
+        alert("Welcome " + name + "! Your account has been created successfully.");
+
+        // ✅ Redirect
+        window.location.replace("dashboard.html");
+
+    })
+    .catch(function(error) {
         alert(error.message);
-    }
+    });
 });
 </script>
 
 </body>
 </html>
-
