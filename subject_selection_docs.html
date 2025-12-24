@@ -3,78 +3,120 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Select Subject (Documents)</title>
-<link rel="stylesheet" href="style.css">
+<title>Select Subject</title>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#2575fc">
-<script>
-  function goToGrade(subject) {
-      const type = 'documents';
-      window.location.href = `grade_selection_docs.html?subject=${subject}&type=${type}`;
-  }
-</script>
+<meta name="theme-color" content="#0B3D91">
 <style>
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: linear-gradient(135deg, #fdfbfb, #ebedee);
-  margin: 0;
-  padding: 0;
-  text-align: center;
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f0f8ff; /* dashboard background */
 }
 
+/* Header */
 header {
-  background: #64b5f6;
-  color: white;
-  padding: 20px;
-  border-radius: 0 0 15px 15px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    background-color: #0B3D91;
+    color: white;
+    padding: 20px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    position: sticky;
+    top: 0;
+    z-index: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
+/* Back button */
+.back-btn {
+    position: absolute;
+    left: 15px;
+    top: 20px;
+    font-size: 24px;
+    color: white;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+.back-btn:hover {
+    color: #87CEFA;
+}
+
+header h2 {
+    margin: 0;
+    font-size: 1.5em;
+}
+
+/* Container & 2x2 grid */
 .container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 70vh;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
 }
 
 .subject-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 20px;
-  width: 80%;
-  max-width: 500px;
+    display: grid;
+    grid-template-columns: repeat(2, 150px); /* 2 columns */
+    grid-template-rows: repeat(2, 120px);    /* 2 rows */
+    gap: 20px;
+    justify-content: center;
+}
+
+/* Subject cards */
+.subject-card {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s, background-color 0.2s;
+}
+
+.subject-card:hover {
+    transform: translateY(-5px);
+    background-color: #87CEFA;
 }
 
 .subject-card button {
-  background-color: #90caf9;
-  color: white;
-  font-size: 18px;
-  border: none;
-  padding: 15px 40px;
-  border-radius: 15px;
-  cursor: pointer;
-  transition: all 0.3s ease;
+    background: none;
+    border: none;
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #0B3D91;
+    cursor: pointer;
+    outline: none;
 }
 
 .subject-card button:hover {
-  background-color: #42a5f5;
-  transform: scale(1.05);
+    color: white;
 }
 </style>
+<script>
+function goToGrade(subject) {
+    const type = 'documents';
+    window.location.href = `grade_selection_docs.html?subject=${subject}&type=${type}`;
+}
+</script>
 </head>
 <body>
+
 <header>
-  <h2>Select a Subject (Documents)</h2>
+    <a href="dashboard.html" class="back-btn">&#8592;</a>
+    <h2>Select a Subject</h2>
 </header>
 
 <div class="container">
-  <div class="subject-grid">
-    <div class="subject-card"><button onclick="goToGrade('physics')">Physics</button></div>
-    <div class="subject-card"><button onclick="goToGrade('chemistry')">Chemistry</button></div>
-    <div class="subject-card"><button onclick="goToGrade('biology')">Biology</button></div>
-    <div class="subject-card"><button onclick="goToGrade('math')">Mathematics</button></div>
-  </div>
+    <div class="subject-grid">
+        <div class="subject-card"><button onclick="goToGrade('physics')">Physics</button></div>
+        <div class="subject-card"><button onclick="goToGrade('chemistry')">Chemistry</button></div>
+        <div class="subject-card"><button onclick="goToGrade('biology')">Biology</button></div>
+        <div class="subject-card"><button onclick="goToGrade('math')">Mathematics</button></div>
+    </div>
 </div>
+
 <script>
 if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("sw.js")
