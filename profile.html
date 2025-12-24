@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Profile - Learn With Enock Academy</title>
+<title>Profile - Finceptuitions</title>
 <link rel="stylesheet" href="style.css">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#2575fc">
@@ -13,6 +13,9 @@ body {
     background-color: #f5f7fa;
     margin: 0;
     color: #1e3a8a;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 }
 header {
     background-color: #1e3a8a;
@@ -24,6 +27,10 @@ header {
     max-width: 600px;
     margin: 20px auto;
     padding: 0 15px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 .section {
     background-color: white;
@@ -69,13 +76,14 @@ header {
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
-import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
+// Firebase config (corrected storageBucket)
 const firebaseConfig = {
   apiKey: "AIzaSyC6gaEIKoeZmSRwVVJOrkQtk7SW_iiqz04",
   authDomain: "secondary-school-center.firebaseapp.com",
   projectId: "secondary-school-center",
-  storageBucket: "secondary-school-center.firebasestorage.app",
+  storageBucket: "secondary-school-center.appspot.com",
   messagingSenderId: "156434969933",
   appId: "1:156434969933:web:796b926798647d1ada3304",
   measurementId: "G-G70CP4W5F8"
@@ -85,24 +93,44 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-onAuthStateChanged(auth, async (user)=>{
-    if(!user) location.href = 'login.html';
+// HTML elements
+const nameEl = document.getElementById('profile-name');
+const emailEl = document.getElementById('profile-email');
+const sinceEl = document.getElementById('profile-since');
 
-    const docRef = doc(db, 'users', user.uid);
-    const docSnap = await getDoc(docRef);
+onAuthStateChanged(auth, (user) => {
+    console.log("Current user:", user); // Debug
 
-    if(docSnap.exists()){
-        const data = docSnap.data();
-        document.getElementById('profile-name').textContent = data.name;
-        document.getElementById('profile-email').textContent = data.email;
-        document.getElementById('profile-since').textContent = data.memberSince || 'Unknown';
-    } else {
-        alert('User data not found.');
-        auth.signOut();
-        location.href = 'dashboard.html';
+    if (!user) {
+        // User not signed in
+        nameEl.textContent = "Not signed in";
+        emailEl.textContent = "-";
+        sinceEl.textContent = "-";
+        return;
     }
+
+    // User is signed in, fetch data from Firestore in real-time
+    const docRef = doc(db, "users", user.uid);
+    onSnapshot(docRef, (docSnap) => {
+        if (docSnap.exists()) {
+            const data = docSnap.data();
+            nameEl.textContent = data.name || "No name";
+            emailEl.textContent = data.email || user.email || "No email";
+            sinceEl.textContent = data.memberSince || "Unknown";
+        } else {
+            nameEl.textContent = "User data not found";
+            emailEl.textContent = "-";
+            sinceEl.textContent = "-";
+        }
+    }, (error) => {
+        console.error("Error fetching user data:", error);
+        nameEl.textContent = "Error loading profile";
+        emailEl.textContent = "-";
+        sinceEl.textContent = "-";
+    });
 });
 </script>
+
 <script>
 if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("sw.js")
@@ -111,7 +139,5 @@ if ("serviceWorker" in navigator) {
 }
 </script>
 
-
 </body>
 </html>
-
