@@ -24,6 +24,25 @@ body {
     height: auto;
 }
 
+/* Back Button */
+.back-btn {
+    display: inline-block;
+    margin: 15px;
+    padding: 8px 16px;
+    background-color: transparent;
+    color: #1e3a8a;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 8px;
+    border: 2px solid #1e3a8a;
+    transition: 0.3s;
+}
+.back-btn:hover {
+    background-color: #1e3a8a;
+    color: white;
+}
+
 header {
     background-color: #1e3a8a;
     color: white;
@@ -88,9 +107,9 @@ header {
     height: auto;
 }
 
-/* Updated MTN and Airtel colors */
+/* MTN and Airtel colors */
 .provider.mtn { 
-    background: #FFDD57; /* softer yellow */
+    background: #FFDD57;
     color: #1e1e1e; 
     box-shadow: 0 3px 6px rgba(0,0,0,0.1);
 }
@@ -132,6 +151,7 @@ input.receiver-number {
     background-color: #334155;
 }
 
+/* Floating WhatsApp */
 .whatsapp-float {
     position: fixed;
     bottom: 20px;
@@ -163,8 +183,11 @@ input.receiver-number {
 
 <!-- Logo -->
 <div class="logo-container">
-    <img src="fincep.jpg" alt="Fincep Logo">
+    <img src="fincep.png" alt="Fincep Logo">
 </div>
+
+<!-- Back Button -->
+<a href="index.html" class="back-btn">&#8592; Back</a>
 
 <header>Fincep Tuitions Payment</header>
 
