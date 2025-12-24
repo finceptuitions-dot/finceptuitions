@@ -1,19 +1,232 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Past Papers</title>
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #001F3F; /* Navy Blue */
+    color: #fff;
+}
+
+/* Year Bar */
+.year-bar {
+    display: flex;
+    overflow-x: auto;
+    background-color: #001F3F;
+    padding: 10px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.year-bar button {
+    background-color: #87CEFA; /* Light Sky Blue */
+    color: #001F3F;
+    border: none;
+    padding: 8px 16px;
+    margin-right: 8px;
+    border-radius: 20px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.year-bar button.active {
+    background-color: #00BFFF;
+}
+
+/* Back Button below year bar (symbol only, no animation) */
+.back-btn {
+    display: inline-block;
+    margin: 10px 15px;
+    padding: 6px 12px;
+    background-color: #87CEFA;
+    color: #001F3F;
+    text-decoration: none;
+    border-radius: 50%;
+    font-size: 18px;
+    font-weight: bold;
+    line-height: 1;
+    text-align: center;
+    width: 36px;
+    height: 36px;
+}
+
+.back-btn:hover {
+    background-color: #00BFFF; /* optional instant hover effect */
+}
+
+/* Content */
+.content {
+    padding: 15px;
+}
+
+/* Subject Cards */
+.subject-card {
+    background-color: #001F3F; /* Navy */
+    border-radius: 10px;
+    margin-bottom: 15px;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.subject-card h3 {
+    margin: 0;
+    color: #87CEFA; /* Light Sky Blue title */
+    font-size: 20px;
+    padding: 15px;
+    border-bottom: 1px solid #87CEFA;
+}
+
+/* Paper Container (collapsible) */
+.paper-container {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+/* Paper Cards */
+.paper {
+    background-color: #87CEFA; /* Light Sky Blue */
+    color: #001F3F;
+    border-radius: 8px;
+    padding: 12px;
+    margin: 10px 15px;
+}
+
+.paper h4 {
+    margin: 0 0 5px;
+    font-size: 16px;
+}
+
+.paper p {
+    margin: 0 0 8px;
+    font-size: 14px;
+}
+
+.paper a {
+    background-color: #001F3F; /* Navy */
+    color: #fff;
+    text-decoration: none;
+    padding: 6px 12px;
+    border-radius: 5px;
+    font-size: 13px;
+}
+
+.paper a:hover {
+    opacity: 0.8;
+}
+</style>
 </head>
 <body>
-    <h2>downloads</h2>
- <script>
-if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("sw.js")
-    .then(() => console.log("Service Worker registered"))
-    .catch((err) => console.log("SW registration failed:", err));
+
+<!-- Year Bar -->
+<div class="year-bar" id="yearBar"></div>
+
+<!-- Back to Dashboard -->
+<a href="dashboard.html" class="back-btn">back</a>
+
+<!-- Content -->
+<div class="content" id="content"></div>
+
+<script>
+// ======== Dynamic Data ========
+const papersData = {
+    2025: {
+        Math: [
+            { title: "Math Paper 1", description: "Algebra and Functions", link: "https://drive.google.com/file/d/YOUR_FILE_ID1/preview" },
+            { title: "Math Paper 2", description: "Calculus Basics", link: "https://drive.google.com/file/d/YOUR_FILE_ID2/preview" }
+        ],
+        English: [
+            { title: "English Paper 1", description: "Comprehension and Grammar", link: "https://drive.google.com/file/d/YOUR_FILE_ID3/preview" }
+        ]
+    },
+    2024: {
+        Science: [
+            { title: "Science Paper 1", description: "Physics: Motion and Forces", link: "https://drive.google.com/file/d/YOUR_FILE_ID4/preview" }
+        ]
+    }
+};
+
+// ======== Initialization ========
+const yearBar = document.getElementById("yearBar");
+const content = document.getElementById("content");
+
+let currentYear = Object.keys(papersData).sort((a,b)=>b-a)[0];
+
+// Create year buttons dynamically
+Object.keys(papersData).sort((a,b)=>b-a).forEach(year => {
+    const btn = document.createElement("button");
+    btn.textContent = year;
+    if(year == currentYear) btn.classList.add("active");
+    btn.onclick = () => selectYear(year);
+    yearBar.appendChild(btn);
+});
+
+// ======== Functions ========
+function selectYear(year) {
+    currentYear = year;
+    document.querySelectorAll(".year-bar button").forEach(btn => {
+        btn.classList.toggle("active", btn.textContent == year);
+    });
+    renderContent();
 }
+
+function renderContent() {
+    content.innerHTML = "";
+    const subjects = papersData[currentYear];
+    for (let subject in subjects) {
+        const card = document.createElement("div");
+        card.className = "subject-card";
+
+        const title = document.createElement("h3");
+        title.textContent = subject;
+        card.appendChild(title);
+
+        const paperContainer = document.createElement("div");
+        paperContainer.className = "paper-container";
+
+        subjects[subject].forEach(paper => {
+            const paperDiv = document.createElement("div");
+            paperDiv.className = "paper";
+
+            const paperTitle = document.createElement("h4");
+            paperTitle.textContent = paper.title;
+            paperDiv.appendChild(paperTitle);
+
+            const paperDesc = document.createElement("p");
+            paperDesc.textContent = paper.description;
+            paperDiv.appendChild(paperDesc);
+
+            const link = document.createElement("a");
+            link.href = paper.link;
+            link.target = "_blank";
+            link.textContent = "View";
+            paperDiv.appendChild(link);
+
+            paperContainer.appendChild(paperDiv);
+        });
+
+        card.appendChild(paperContainer);
+        content.appendChild(card);
+
+        // Toggle collapse on click
+        title.onclick = () => {
+            if (paperContainer.style.maxHeight) {
+                paperContainer.style.maxHeight = null;
+            } else {
+                paperContainer.style.maxHeight = paperContainer.scrollHeight + "px";
+            }
+        };
+    }
+}
+
+// Initial render
+renderContent();
 </script>
-   
+
 </body>
 </html>
