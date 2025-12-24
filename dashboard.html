@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fincep Tuitions Dashboard</title>
 <meta name="theme-color" content="#0B3D91">
+
 <style>
 body {
     margin: 0;
@@ -25,39 +26,40 @@ body {
     border-bottom-left-radius: 10px;
     border-bottom-right-radius: 10px;
     position: relative;
-    z-index: 500; /* above menu for top buttons */
+    z-index: 500;
 }
 
 .dashboard-header h2 { margin: 0; }
 .welcome-msg { font-size: 1.1em; font-weight: bold; margin-top: 3px; }
 #trial-days { font-size: 0.9em; margin-top: 3px; opacity: 0.85; }
 
-/* Hamburger & logout */
+/* Header buttons */
 .header-top-left, .header-top-right {
     position: absolute;
     top: 10px;
-    display: flex;
-    align-items: center;
 }
 .header-top-left { left: 15px; }
 .header-top-right { right: 15px; }
-.header-top-left button, .header-top-right button {
-    background: none; border: none; color: white; font-size: 24px; cursor: pointer;
+
+.header-top-left button,
+.header-top-right button {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
 }
 
-/* Hamburger overlay */
+/* Overlay */
 .hamburger-overlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    inset: 0;
     background: rgba(0,0,0,0.4);
-    z-index: 390; /* below menu */
+    z-index: 390;
     display: none;
 }
 
-/* Hamburger Menu */
+/* Menu */
 .hamburger-menu {
     position: fixed;
     top: 0;
@@ -66,8 +68,7 @@ body {
     height: 100%;
     background-color: #0B3D91;
     padding: 20px;
-    z-index: 400; /* above overlay */
-    overflow-y: auto;
+    z-index: 400;
     border-right: 2px solid #87CEFA;
     transform: translateX(-100%);
     transition: transform 0.3s ease;
@@ -77,99 +78,110 @@ body {
     transform: translateX(0);
 }
 
-.menu-top-image {
-    text-align: center;
-    margin-bottom: 20px;
-}
 .menu-top-image img {
     width: 100%;
     max-width: 180px;
-    height: auto;
     border-radius: 8px;
 }
 
-.hamburger-menu ul { list-style: none; padding: 0; margin: 0; }
-.hamburger-menu li { margin: 15px 0; }
-.hamburger-menu a { 
-    color: #87CEFA; 
-    text-decoration: none; 
-    font-weight: bold; 
-    font-size: 1em; 
-    position: relative; 
-    z-index: 410; /* above everything */
+.hamburger-menu ul {
+    list-style: none;
+    padding: 0;
 }
-.hamburger-menu a:hover { color: white; }
 
-/* Main Section */
+.hamburger-menu li {
+    margin: 15px 0;
+}
+
+.hamburger-menu a {
+    color: #87CEFA;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.hamburger-menu a:hover {
+    color: white;
+}
+
+/* Main */
 .dashboard-main {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 10px;
-    margin-bottom: 60px;
+    padding: 12px;
+    margin-bottom: 70px;
 }
 
-/* Video Grid 2x2 */
 .video-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    grid-template-rows: repeat(2, 1fr);
     gap: 15px;
-    width: 100%;
     max-width: 420px;
+    margin: auto;
 }
 
 .video-card {
-    position: relative;
-    background-color: white;
-    border-radius: 8px;
-    width: 100%;
-    text-align: center;
-    padding: 5px;
+    background: white;
+    border-radius: 10px;
+    padding: 8px;
     box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-    transition: transform 0.2s, background-color 0.2s;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-.video-card:hover { transform: translateY(-5px); background-color: #87CEFA; }
-
-.video-card video {
-    width: 100%;
-    height: 80px;
-    border-radius: 5px;
-    margin-top: 10px;
+    position: relative;
 }
 
-/* New badge animation */
+.video-card h4 {
+    margin: 6px 0 0;
+    color: #0B3D91;
+    font-size: 0.9em;
+    text-align: center;
+}
+
+/* NEW badge */
 .new-badge {
     position: absolute;
-    top: 5px;
-    right: 5px;
-    z-index: 10;
-    background-color: #ff4757;
+    top: 6px;
+    right: 6px;
+    background: #ff4757;
     color: white;
     font-size: 0.65em;
     font-weight: bold;
-    padding: 2px 5px;
-    border-radius: 10px;
-    animation: pulse 1.5s infinite;
+    padding: 3px 6px;
+    border-radius: 12px;
 }
-@keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
 
-.video-card h4 { margin: 4px 0; color: #0B3D91; font-size: 0.85em; }
+/* 🔥 GOOGLE DRIVE FIX */
+.video-wrapper {
+    width: 100%;
+    position: relative;
+    padding-top: 56.25%;
+    border-radius: 6px;
+    overflow: hidden;
+}
 
-/* Bottom Navigation */
+.video-wrapper iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+/* Bottom nav */
 .dashboard-nav {
-    position: fixed; bottom: 0; left: 0; width: 100%;
-    background-color: #0B3D91;
-    display: flex; justify-content: space-around; padding: 10px 0;
-    color: white; font-weight: bold; z-index: 300; /* below menu */
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background: #0B3D91;
+    display: flex;
+    justify-content: space-around;
+    padding: 10px 0;
+    z-index: 300;
 }
-.dashboard-nav a { color: #87CEFA; text-decoration: none; font-size: 14px; }
-.dashboard-nav a:hover { color: white; }
+
+.dashboard-nav a {
+    color: #87CEFA;
+    text-decoration: none;
+    font-weight: bold;
+}
 </style>
 </head>
+
 <body>
 
 <div id="hamburger-overlay" class="hamburger-overlay"></div>
@@ -181,13 +193,14 @@ body {
     <div class="header-top-right">
         <button id="logout-btn">&#10162;</button>
     </div>
+
     <h2>Fincep Tuitions</h2>
     <p id="trial-days">You're remaining with: 30 trial days</p>
-    <p class="welcome-msg" id="welcome-msg">Welcome!</p>
+    <p class="welcome-msg">Welcome!</p>
 
     <nav id="hamburger-menu" class="hamburger-menu">
         <div class="menu-top-image">
-            <img src="fincep.jpg" alt="Top Image" />
+            <img src="fincep.jpg">
         </div>
         <ul>
             <li><a href="profile.html">Profile</a></li>
@@ -201,36 +214,41 @@ body {
 </header>
 
 <main class="dashboard-main">
-    <div class="video-grid">
-        <div class="video-card">
-            <span class="new-badge">New</span>
-            <video controls poster="https://via.placeholder.com/180x60.png?text=Video+1">
-                <source src="https://drive.google.com/file/d/1rcSvi9ff8b-tg0YxzNx6xEdzaexVkZRw/view" type="video/mp4">
-            </video>
-            <h4>Trigonometry</h4>
-        </div>
-        <div class="video-card">
-            <span class="new-badge">New</span>
-            <video controls poster="https://via.placeholder.com/180x60.png?text=Video+2">
-                <source src="YOUR_VIDEO_2.mp4" type="video/mp4">
-            </video>
-            <h4>Video 2</h4>
-        </div>
-        <div class="video-card">
-            <span class="new-badge">New</span>
-            <video controls poster="https://via.placeholder.com/180x60.png?text=Video+3">
-                <source src="YOUR_VIDEO_3.mp4" type="video/mp4">
-            </video>
-            <h4>Video 3</h4>
-        </div>
-        <div class="video-card">
-            <span class="new-badge">New</span>
-            <video controls poster="https://via.placeholder.com/180x60.png?text=Video+4">
-                <source src="YOUR_VIDEO_4.mp4" type="video/mp4">
-            </video>
-            <h4>Video 4</h4>
-        </div>
-    </div>
+<div class="video-grid">
+
+<div class="video-card">
+<span class="new-badge">New</span>
+<div class="video-wrapper">
+<iframe src="h" allowfullscreen></iframe>
+</div>
+<h4>Trigonometry</h4>
+</div>
+
+<div class="video-card">
+<span class="new-badge">New</span>
+<div class="video-wrapper">
+<iframe src="h" allowfullscreen></iframe>
+</div>
+<h4>Cells</h4>
+</div>
+
+<div class="video-card">
+<span class="new-badge">New</span>
+<div class="video-wrapper">
+<iframe src="h" allowfullscreen></iframe>
+</div>
+<h4>Relations</h4>
+</div>
+
+<div class="video-card">
+<span class="new-badge">New</span>
+<div class="video-wrapper">
+<iframe src="h" allowfullscreen></iframe>
+</div>
+<h4>Numbers</h4>
+</div>
+
+</div>
 </main>
 
 <nav class="dashboard-nav">
@@ -242,41 +260,22 @@ body {
 
 <script>
 const menuBtn = document.getElementById('menu-btn');
-const hamburgerMenu = document.getElementById('hamburger-menu');
+const menu = document.getElementById('hamburger-menu');
 const overlay = document.getElementById('hamburger-overlay');
 
-// Toggle menu
-menuBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    hamburgerMenu.classList.toggle('active');
-    overlay.classList.toggle('active');
-});
+menuBtn.onclick = () => {
+    menu.classList.toggle('active');
+    overlay.style.display = menu.classList.contains('active') ? 'block' : 'none';
+};
 
-// Clicking outside menu closes it
-document.addEventListener('click', (e) => {
-    if (!hamburgerMenu.contains(e.target) && e.target !== menuBtn) {
-        hamburgerMenu.classList.remove('active');
-        overlay.classList.remove('active');
-    }
-});
+overlay.onclick = () => {
+    menu.classList.remove('active');
+    overlay.style.display = 'none';
+};
 
-// Clicking overlay closes menu
-overlay.addEventListener('click', () => {
-    hamburgerMenu.classList.remove('active');
-    overlay.classList.remove('active');
-});
-
-// Prevent closing when clicking links inside menu
-hamburgerMenu.querySelectorAll('a').forEach(link => {
-    link.addEventListener('click', (e) => {
-        e.stopPropagation(); // menu stays open
-    });
-});
-
-// Logout button
-document.getElementById('logout-btn').addEventListener('click', () => {
-    window.location.href = 'index.html';
-});
+document.getElementById('logout-btn').onclick = () => {
+    location.href = 'index.html';
+};
 </script>
 
 </body>
