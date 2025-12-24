@@ -1,20 +1,229 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#2575fc">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fincep Tuitions Payment</title>
+<meta name="theme-color" content="#1e3a8a">
+<style>
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(to bottom, #e0f0ff, #ffffff);
+    color: #1e3a8a;
+    text-align: center;
+}
+
+/* Logo at top of page */
+.logo-container {
+    text-align: center;
+    margin-top: 20px;
+}
+.logo-container img {
+    width: 120px; 
+    height: auto;
+}
+
+header {
+    background-color: #1e3a8a;
+    color: white;
+    padding: 20px;
+    font-size: 24px;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.payment-container {
+    max-width: 400px;
+    margin: 40px auto;
+    padding: 25px;
+    background-color: #f8fbff;
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.payment-container h2 {
+    margin-bottom: 10px;
+    font-size: 22px;
+}
+
+.payment-container .amount {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.payment-container p.instructions {
+    text-align: left;
+    margin-bottom: 15px;
+    font-size: 15px;
+    color: #333;
+}
+
+.provider-section {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.provider {
+    flex: 1;
+    min-width: 150px;
+    padding: 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.3s;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: white;
+}
+
+.provider img {
+    width: 40px;
+    height: auto;
+}
+
+/* Updated MTN and Airtel colors */
+.provider.mtn { 
+    background: #FFDD57; /* softer yellow */
+    color: #1e1e1e; 
+    box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+}
+.provider.mtn:hover { 
+    background: #FFC933; 
+}
+
+.provider.airtel { 
+    background: #D32F2F; 
+    color: white; 
+    box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+}
+.provider.airtel:hover { 
+    background: #B71C1C; 
+}
+
+input.receiver-number {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 20px;
+    font-size: 16px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    text-align: center;
+}
+
+#copy-btn {
+    padding: 12px 20px;
+    font-size: 16px;
+    background-color: #1e3a8a;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+#copy-btn:hover {
+    background-color: #334155;
+}
+
+.whatsapp-float {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    background-color: #25D366;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    z-index: 1000;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.whatsapp-float:hover {
+    transform: scale(1.1);
+}
+
+.whatsapp-float img {
+    width: 35px;
+    height: 35px;
+}
+</style>
 </head>
 <body>
-    <h1>coming soon...</h1>
+
+<!-- Logo -->
+<div class="logo-container">
+    <img src="fincep.jpg" alt="Fincep Logo">
+</div>
+
+<header>Fincep Tuitions Payment</header>
+
+<div class="payment-container">
+    <h2>Pay with Mobile Money</h2>
+    <div class="amount">Amount: ZMW 0.00</div>
+    <p class="instructions">
+        <strong>Instructions:</strong><br>
+        1. Select your network provider.<br>
+        2. Click "Copy Number & Pay" to copy the receiver number.<br>
+        3. You will be redirected to dial <strong>*115#</strong> on your phone.<br>
+        4. Complete the payment and take a screenshot.<br>
+        5. Send the screenshot to the admin via WhatsApp by clicking the floating button at the bottom right.
+    </p>
+
+    <div class="provider-section">
+        <div class="provider mtn" onclick="preparePayment('MTN', '0971234567')">
+            <img src="mtn.png" alt="MTN" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/2/2b/MTN_logo.svg'"> MTN
+        </div>
+        <div class="provider airtel" onclick="preparePayment('Airtel', '0977654321')">
+            <img src="airtel.png" alt="Airtel" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/7/7e/Airtel_logo.svg'"> Airtel
+        </div>
+    </div>
+
+    <input type="text" class="receiver-number" id="receiver-number" readonly placeholder="Receiver number will appear here">
+    <button id="copy-btn">Copy Number & Pay</button>
+</div>
+
+<!-- Floating WhatsApp -->
+<a href="https://wa.me/260771234567" target="_blank" class="whatsapp-float">
+    <img src="images/whatsapp.png" alt="WhatsApp" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg'">
+</a>
+
 <script>
-if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("sw.js")
-    .then(() => console.log("Service Worker registered"))
-    .catch((err) => console.log("SW registration failed:", err));
+let selectedNumber = '';
+
+function preparePayment(provider, number) {
+    selectedNumber = number;
+    document.getElementById('receiver-number').value = number;
+    alert(`${provider} selected! Click "Copy Number & Pay" to proceed.`);
 }
+
+document.getElementById('copy-btn').addEventListener('click', () => {
+    const receiverInput = document.getElementById('receiver-number');
+    if (!selectedNumber) {
+        alert('Please select a provider first.');
+        return;
+    }
+
+    receiverInput.select();
+    receiverInput.setSelectionRange(0, 99999);
+
+    navigator.clipboard.writeText(receiverInput.value)
+        .then(() => {
+            alert('Receiver number copied! Redirecting to *115#...');
+            window.location.href = "tel:*115#";
+        })
+        .catch(err => alert('Failed to copy. Please copy manually.'));
+});
 </script>
 
 </body>
