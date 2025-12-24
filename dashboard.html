@@ -25,7 +25,7 @@ body {
     border-bottom-left-radius: 10px;
     border-bottom-right-radius: 10px;
     position: relative;
-    z-index: 100;
+    z-index: 500; /* above menu for top buttons */
 }
 
 .dashboard-header h2 { margin: 0; }
@@ -53,8 +53,8 @@ body {
     width: 100%;
     height: 100%;
     background: rgba(0,0,0,0.4);
-    z-index: 250;
-    display: none; /* hidden by default */
+    z-index: 390; /* below menu */
+    display: none;
 }
 
 /* Hamburger Menu */
@@ -66,10 +66,15 @@ body {
     height: 100%;
     background-color: #0B3D91;
     padding: 20px;
-    z-index: 260;
-    display: none; /* hidden by default */
+    z-index: 400; /* above overlay */
     overflow-y: auto;
     border-right: 2px solid #87CEFA;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+}
+
+.hamburger-menu.active {
+    transform: translateX(0);
 }
 
 .menu-top-image {
@@ -85,11 +90,15 @@ body {
 
 .hamburger-menu ul { list-style: none; padding: 0; margin: 0; }
 .hamburger-menu li { margin: 15px 0; }
-.hamburger-menu a { color: #87CEFA; text-decoration: none; font-weight: bold; font-size: 1em; }
+.hamburger-menu a { 
+    color: #87CEFA; 
+    text-decoration: none; 
+    font-weight: bold; 
+    font-size: 1em; 
+    position: relative; 
+    z-index: 410; /* above everything */
+}
 .hamburger-menu a:hover { color: white; }
-
-.hamburger-menu.active { display: block; }
-.hamburger-overlay.active { display: block; }
 
 /* Main Section */
 .dashboard-main {
@@ -97,7 +106,7 @@ body {
     justify-content: center;
     align-items: center;
     padding: 10px;
-    margin-bottom: 60px; /* space for bottom nav */
+    margin-bottom: 60px;
 }
 
 /* Video Grid 2x2 */
@@ -155,7 +164,7 @@ body {
     position: fixed; bottom: 0; left: 0; width: 100%;
     background-color: #0B3D91;
     display: flex; justify-content: space-around; padding: 10px 0;
-    color: white; font-weight: bold; z-index: 300;
+    color: white; font-weight: bold; z-index: 300; /* below menu */
 }
 .dashboard-nav a { color: #87CEFA; text-decoration: none; font-size: 14px; }
 .dashboard-nav a:hover { color: white; }
@@ -163,10 +172,8 @@ body {
 </head>
 <body>
 
-<!-- Hamburger overlay -->
 <div id="hamburger-overlay" class="hamburger-overlay"></div>
 
-<!-- Header -->
 <header class="dashboard-header">
     <div class="header-top-left">
         <button id="menu-btn">&#9776;</button>
@@ -175,11 +182,10 @@ body {
         <button id="logout-btn">&#10162;</button>
     </div>
     <h2>Fincep Tuitions</h2>
-    <p class="welcome-msg" id="welcome-msg">Welcome!</p>
     <p id="trial-days">You're remaining with: 30 trial days</p>
+    <p class="welcome-msg" id="welcome-msg">Welcome!</p>
 
     <nav id="hamburger-menu" class="hamburger-menu">
-        <!-- Top Image -->
         <div class="menu-top-image">
             <img src="top-image.png" alt="Top Image" />
         </div>
@@ -194,7 +200,6 @@ body {
     </nav>
 </header>
 
-<!-- Main Section -->
 <main class="dashboard-main">
     <div class="video-grid">
         <div class="video-card">
@@ -228,7 +233,6 @@ body {
     </div>
 </main>
 
-<!-- Bottom Navigation -->
 <nav class="dashboard-nav">
     <a href="dashboard.html">Home</a>
     <a href="subject_selection.html">Videos</a>
@@ -237,34 +241,39 @@ body {
 </nav>
 
 <script>
-// Hamburger toggle
 const menuBtn = document.getElementById('menu-btn');
 const hamburgerMenu = document.getElementById('hamburger-menu');
 const overlay = document.getElementById('hamburger-overlay');
 
+// Toggle menu
 menuBtn.addEventListener('click', (e) => {
-    e.stopPropagation(); // prevent document click from closing immediately
-    hamburgerMenu.classList.toggle('active'); 
-    overlay.classList.toggle('active');       
+    e.stopPropagation();
+    hamburgerMenu.classList.toggle('active');
+    overlay.classList.toggle('active');
 });
 
-// Close menu when clicking anywhere outside it
+// Clicking outside menu closes it
 document.addEventListener('click', (e) => {
-    if (!hamburgerMenu.contains(e.target) && !menuBtn.contains(e.target)) {
+    if (!hamburgerMenu.contains(e.target) && e.target !== menuBtn) {
         hamburgerMenu.classList.remove('active');
         overlay.classList.remove('active');
     }
 });
 
-// Close when clicking a menu link
+// Clicking overlay closes menu
+overlay.addEventListener('click', () => {
+    hamburgerMenu.classList.remove('active');
+    overlay.classList.remove('active');
+});
+
+// Prevent closing when clicking links inside menu
 hamburgerMenu.querySelectorAll('a').forEach(link => {
-    link.addEventListener('click', () => {
-        hamburgerMenu.classList.remove('active');
-        overlay.classList.remove('active');
+    link.addEventListener('click', (e) => {
+        e.stopPropagation(); // menu stays open
     });
 });
 
-// Offline logout: just redirect
+// Logout button
 document.getElementById('logout-btn').addEventListener('click', () => {
     window.location.href = 'index.html';
 });
