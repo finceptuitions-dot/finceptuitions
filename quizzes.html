@@ -1,137 +1,175 @@
-<!-- File: quizzes.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Quizzes - Learn With Enock Academy</title>
-<link rel="stylesheet" href="style.css">
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#2575fc">
-<style>
-  body { font-family: Arial, sans-serif; background: #f5f7fa; margin:0; color:#1e3a8a; }
-  header { background:#1e3a8a; color:#fff; padding:15px; text-align:center; font-size:20px; position:fixed; top:0; width:100%; z-index:100;}
-  .container { max-width:900px; margin:80px auto 20px; padding:0 15px; }
-  .quiz-card { background:white; border-radius:12px; padding:20px; margin-bottom:20px; box-shadow:0 2px 8px rgba(0,0,0,0.1); }
-  .question { margin-top:15px; }
-  .question p { margin:0 0 10px 0; }
-  .options button { display:block; width:100%; margin:5px 0; padding:10px; border:none; border-radius:8px; cursor:pointer; background:#cce4ff; color:#1e3a8a; text-align:left; }
-  .options button:hover { background:#90caf9; }
-  .submit-btn { margin-top:15px; padding:10px 20px; background:#1e3a8a; color:#fff; border:none; border-radius:8px; cursor:pointer; }
-  .submit-btn:hover { background:#334155; }
-  .result { margin-top:10px; font-weight:bold; }
-  .back-btn { margin-bottom:20px; padding:8px 15px; background:#1e3a8a; color:white; border:none; border-radius:8px; cursor:pointer; }
-  .back-btn:hover { background:#334155; }
-</style>
-<script>
-if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("sw.js")
-    .then(() => console.log("Service Worker registered"))
-    .catch((err) => console.log("SW registration failed:", err));
-}
-</script>
 
+<style>
+body { font-family: Arial, sans-serif; background:#f5f7fa; margin:0; color:#1e3a8a; }
+header { background:#1e3a8a; color:#fff; padding:15px; text-align:center; font-size:20px; position:fixed; top:0; width:100%; }
+.container { max-width:900px; margin:80px auto 20px; padding:15px; }
+
+.quiz-card { background:white; border-radius:12px; padding:20px; margin-bottom:20px; box-shadow:0 2px 8px rgba(0,0,0,0.1); }
+.question { margin-top:15px; }
+.options button {
+  display:block; width:100%; margin:6px 0; padding:10px;
+  border:none; border-radius:8px; background:#cce4ff;
+  cursor:pointer; text-align:left;
+}
+.options button:hover { background:#90caf9; }
+
+.submit-btn {
+  margin-top:15px; padding:10px 20px;
+  background:#1e3a8a; color:white;
+  border:none; border-radius:8px; cursor:pointer;
+}
+
+.result { margin-top:10px; font-weight:bold; }
+
+.topic-header {
+  background:#1e40af; color:white;
+  padding:12px; border-radius:8px;
+  cursor:pointer; margin-bottom:10px;
+}
+
+.topic-content { display:none; }
+.back-btn {
+  margin-bottom:15px;
+  padding:8px 15px;
+  background:#1e3a8a; color:white;
+  border:none; border-radius:8px;
+}
+</style>
 </head>
+
 <body>
 
 <header>Quizzes</header>
 
 <div class="container">
-    <button class="back-btn" onclick="history.back()">← Back</button>
+<button class="back-btn" onclick="history.back()">← Back</button>
 
-    <div id="quizzes-container">
-        <!-- Quizzes will load here -->
-    </div>
+<div id="quizzes"></div>
 </div>
 
-<!-- Firebase Script -->
-<script type="module">
-import { auth, db } from './firebase.js';
-import { collection, query, where, getDocs, doc, setDoc, serverTimestamp } from "firebase/firestore";
+<script>
+// ===============================
+// ADMIN PASTE QUIZ CODES HERE 👇
+// ===============================
+const quizData = [
+  {
+    title: "Blood Circulation Quiz",
+    subject: "Biology",
+    grade: 10,
+    term: 1,
+    topic: "Human Circulatory System",
+    questions: [
+      {
+        question: "Which chamber of the heart receives oxygenated blood from the lungs?",
+        options: ["Left Atrium", "Right Atrium", "Left Ventricle", "Right Ventricle"],
+        answer: "Left Atrium"
+      },
+      {
+        question: "Which blood vessels carry blood away from the heart?",
+        options: ["Arteries", "Veins", "Capillaries", "Venules"],
+        answer: "Arteries"
+      },
+      {
+        question: "Which blood vessels are the smallest and allow exchange of nutrients and waste?",
+        options: ["Capillaries", "Arteries", "Veins", "Aorta"],
+        answer: "Capillaries"
+      },
+      {
+        question: "The largest artery in the human body is called the…",
+        options: ["Aorta", "Pulmonary Artery", "Vena Cava", "Coronary Artery"],
+        answer: "Aorta"
+      },
+      {
+        question: "Which side of the heart pumps blood to the lungs?",
+        options: ["Right Side", "Left Side", "Both Sides", "None"],
+        answer: "Right Side"
+      }
+    ]
+  }
+];
+// ===============================
 
-auth.onAuthStateChanged(async (user) => {
-    if(!user) location.href='login.html';
-    
-    const uid = user.uid;
-    const urlParams = new URLSearchParams(window.location.search);
-    const subject = urlParams.get('subject');
-    const grade = parseInt(urlParams.get('grade'));
-    const term = parseInt(urlParams.get('term'));
+const quizzesDiv = document.getElementById("quizzes");
 
-    if(!subject || !grade || !term){
-        alert("Missing subject, grade, or term");
-        return;
-    }
+// Group by topic
+const topics = {};
+quizData.forEach(q => {
+  if(!topics[q.topic]) topics[q.topic] = [];
+  topics[q.topic].push(q);
+});
 
-    const quizzesContainer = document.getElementById('quizzes-container');
-    quizzesContainer.innerHTML = "Loading quizzes...";
+Object.keys(topics).forEach(topic => {
+  const header = document.createElement("div");
+  header.className = "topic-header";
+  header.textContent = topic;
 
-    // Fetch quizzes from Firestore
-    const q = query(collection(db, 'quizzes'), 
-                    where('subject', '==', subject), 
-                    where('grade', '==', grade), 
-                    where('term', '==', term));
-    const querySnapshot = await getDocs(q);
-    quizzesContainer.innerHTML = '';
+  const content = document.createElement("div");
+  content.className = "topic-content";
 
-    if(querySnapshot.empty){
-        quizzesContainer.innerHTML = "<p>No quizzes available.</p>";
-        return;
-    }
+  header.onclick = () => {
+    content.style.display = content.style.display === "block" ? "none" : "block";
+  };
 
-    querySnapshot.forEach(docSnap => {
-        const quiz = docSnap.data();
-        const quizDiv = document.createElement('div');
-        quizDiv.className = 'quiz-card';
-        quizDiv.innerHTML = `<h3>${quiz.title}</h3>`;
+  topics[topic].forEach(quiz => {
+    const card = document.createElement("div");
+    card.className = "quiz-card";
+    card.innerHTML = `<h3>${quiz.title}</h3>`;
 
-        quiz.questions.forEach((q, index) => {
-            const questionDiv = document.createElement('div');
-            questionDiv.className = 'question';
-            questionDiv.innerHTML = `<p>${index+1}. ${q.question}</p>`;
-            const optionsDiv = document.createElement('div');
-            optionsDiv.className = 'options';
+    const refs = [];
 
-            q.options.forEach(opt => {
-                const btn = document.createElement('button');
-                btn.textContent = opt;
-                btn.onclick = () => {
-                    btn.style.backgroundColor = '#1e3a8a';
-                    btn.style.color = '#fff';
-                    questionDiv.selectedAnswer = opt;
-                }
-                optionsDiv.appendChild(btn);
-            });
-            questionDiv.appendChild(optionsDiv);
-            quizDiv.appendChild(questionDiv);
-        });
+    quiz.questions.forEach((q, i) => {
+      const qDiv = document.createElement("div");
+      qDiv.className = "question";
+      qDiv.innerHTML = `<p>${i+1}. ${q.question}</p>`;
 
-        const submitBtn = document.createElement('button');
-        submitBtn.className = 'submit-btn';
-        submitBtn.textContent = 'Submit Quiz';
-        submitBtn.onclick = async () => {
-            let score = 0;
-            quiz.questions.forEach((q,i) => {
-                const questionDiv = quizDiv.getElementsByClassName('question')[i];
-                if(questionDiv.selectedAnswer === q.answer) score++;
-            });
-            const resultDiv = document.createElement('div');
-            resultDiv.className = 'result';
-            resultDiv.textContent = `You scored ${score} / ${quiz.questions.length}`;
-            quizDiv.appendChild(resultDiv);
+      const opts = document.createElement("div");
+      opts.className = "options";
 
-            // Save result to Firestore
-            const resultRef = doc(db, 'users', uid, 'quizResults', docSnap.id);
-            await setDoc(resultRef, {
-                score: score,
-                total: quiz.questions.length,
-                timestamp: serverTimestamp()
-            });
-        }
-        quizDiv.appendChild(submitBtn);
+      q.options.forEach(opt => {
+        const btn = document.createElement("button");
+        btn.textContent = opt;
+        btn.onclick = () => {
+          [...opts.children].forEach(b => b.style.background="#cce4ff");
+          btn.style.background="#1e3a8a";
+          btn.style.color="#fff";
+          qDiv.selected = opt;
+        };
+        opts.appendChild(btn);
+      });
 
-        quizzesContainer.appendChild(quizDiv);
+      qDiv.appendChild(opts);
+      card.appendChild(qDiv);
+      refs.push({ qDiv, answer: q.answer });
     });
+
+    const submit = document.createElement("button");
+    submit.className = "submit-btn";
+    submit.textContent = "Submit Quiz";
+
+    const result = document.createElement("div");
+    result.className = "result";
+
+    submit.onclick = () => {
+      let score = 0;
+      refs.forEach(r => {
+        if(r.qDiv.selected === r.answer) score++;
+      });
+      result.textContent = `You scored ${score} / ${quiz.questions.length}`;
+    };
+
+    card.appendChild(submit);
+    card.appendChild(result);
+    content.appendChild(card);
+  });
+
+  quizzesDiv.appendChild(header);
+  quizzesDiv.appendChild(content);
 });
 </script>
 
