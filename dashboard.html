@@ -72,16 +72,11 @@ body {
     border-right: 2px solid #87CEFA;
     transform: translateX(-100%);
     transition: transform 0.3s ease;
+    overflow-y: auto; /* make it scrollable on small screens */
 }
 
 .hamburger-menu.active {
     transform: translateX(0);
-}
-
-.menu-top-image img {
-    width: 100%;
-    max-width: 180px;
-    border-radius: 8px;
 }
 
 .hamburger-menu ul {
@@ -103,81 +98,40 @@ body {
     color: white;
 }
 
-/* Main */
+/* MAIN NAV CARDS */
 .dashboard-main {
-    padding: 12px;
-    margin-bottom: 70px;
+    padding: 25px 15px;
 }
 
-.video-grid {
+.nav-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 15px;
+    gap: 18px;
     max-width: 420px;
     margin: auto;
 }
 
-.video-card {
+.nav-card {
     background: white;
-    border-radius: 10px;
-    padding: 8px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-    position: relative;
-}
-
-.video-card h4 {
-    margin: 6px 0 0;
-    color: #0B3D91;
-    font-size: 0.9em;
-    text-align: center;
-}
-
-/* NEW badge */
-.new-badge {
-    position: absolute;
-    top: 6px;
-    right: 6px;
-    background: #ff4757;
-    color: white;
-    font-size: 0.65em;
-    font-weight: bold;
-    padding: 3px 6px;
     border-radius: 12px;
-}
-
-/* 🔥 GOOGLE DRIVE FIX */
-.video-wrapper {
-    width: 100%;
-    position: relative;
-    padding-top: 56.25%;
-    border-radius: 6px;
-    overflow: hidden;
-}
-
-.video-wrapper iframe {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    border: none;
-}
-
-/* Bottom nav */
-.dashboard-nav {
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    background: #0B3D91;
-    display: flex;
-    justify-content: space-around;
-    padding: 10px 0;
-    z-index: 300;
-}
-
-.dashboard-nav a {
-    color: #87CEFA;
-    text-decoration: none;
+    padding: 25px 10px;
+    text-align: center;
     font-weight: bold;
+    color: #0B3D91;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+    cursor: pointer;
+    transition: transform 0.2s, background 0.2s;
+}
+
+.nav-card:hover {
+    transform: translateY(-4px);
+    background: #e6f2ff;
+}
+
+.nav-card span {
+    display: block;
+    margin-top: 8px;
+    font-size: 0.9em;
 }
 </style>
 </head>
@@ -199,9 +153,11 @@ body {
     <p class="welcome-msg">Welcome!</p>
 
     <nav id="hamburger-menu" class="hamburger-menu">
-        <div class="menu-top-image">
-            <img src="fincep.jpg">
+        <!-- Image at the top of the menu -->
+        <div style="text-align:center; margin-bottom: 20px;">
+            <img src="fincep.jpg" alt="Logo" style="width: 100px; border-radius: 50%;">
         </div>
+
         <ul>
             <li><a href="profile.html">Profile</a></li>
             <li><a href="task.html">Task</a></li>
@@ -214,51 +170,53 @@ body {
 </header>
 
 <main class="dashboard-main">
-<div class="video-grid">
+    <div class="nav-grid">
+        <div class="nav-card" onclick="location.href='subject_selection.html'">
+            📺
+            <span>Videos</span>
+        </div>
 
-<div class="video-card">
-<span class="new-badge">New</span>
-<div class="video-wrapper">
-<iframe src="h" allowfullscreen></iframe>
-</div>
-<h4>Trigonometry</h4>
-</div>
+        <div class="nav-card" onclick="location.href='subject_selection_docs.html'">
+            📄
+            <span>Documents</span>
+        </div>
 
-<div class="video-card">
-<span class="new-badge">New</span>
-<div class="video-wrapper">
-<iframe src="h" allowfullscreen></iframe>
-</div>
-<h4>Cells</h4>
-</div>
+        <div class="nav-card" onclick="location.href='pastpapers.html'">
+            📚
+            <span>Past Papers</span>
+        </div>
 
-<div class="video-card">
-<span class="new-badge">New</span>
-<div class="video-wrapper">
-<iframe src="h" allowfullscreen></iframe>
-</div>
-<h4>Relations</h4>
-</div>
-
-<div class="video-card">
-<span class="new-badge">New</span>
-<div class="video-wrapper">
-<iframe src="h" allowfullscreen></iframe>
-</div>
-<h4>Numbers</h4>
-</div>
-
-</div>
+        <div class="nav-card" onclick="location.href='task.html'">
+            📝
+            <span>Tasks</span>
+        </div>
+    </div>
 </main>
 
-<nav class="dashboard-nav">
-    <a href="dashboard.html">Home</a>
-    <a href="subject_selection.html">Videos</a>
-    <a href="subject_selection_docs.html">Documents</a>
-    <a href="pastpapers.html">Past Papers</a>
-</nav>
+<!-- Subscribe button at the very bottom -->
+<div style="text-align:center; padding: 15px;">
+    <a href="syllabus.html">
+        <button style="
+            background-color: #0B3D91;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9em;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: background 0.2s;
+        " 
+        onmouseover="this.style.background='#0951b0'" 
+        onmouseout="this.style.background='#0B3D91'">
+            Subscribe
+        </button>
+    </a>
+</div>
 
 <script>
+// ---- Hamburger Menu ----
 const menuBtn = document.getElementById('menu-btn');
 const menu = document.getElementById('hamburger-menu');
 const overlay = document.getElementById('hamburger-overlay');
@@ -273,9 +231,43 @@ overlay.onclick = () => {
     overlay.style.display = 'none';
 };
 
+// ---- Logout ----
 document.getElementById('logout-btn').onclick = () => {
     location.href = 'index.html';
 };
+
+// ---- Welcome & Trial Countdown ----
+const trialDaysElement = document.getElementById('trial-days');
+const welcomeElement = document.querySelector('.welcome-msg');
+
+// ---- USER NAME ----
+let userName = localStorage.getItem('userName');
+if (!userName) {
+    userName = "Guest"; // fallback
+    localStorage.setItem('userName', userName);
+}
+welcomeElement.textContent = `Welcome, ${userName}!`;
+
+// ---- TRIAL COUNTDOWN ----
+const trialPeriod = 30; // 30 days trial
+
+let startDate = localStorage.getItem('trialStart');
+if (!startDate) {
+    startDate = new Date().toISOString();
+    localStorage.setItem('trialStart', startDate);
+}
+
+const start = new Date(startDate);
+const today = new Date();
+
+const diffTime = today - start;
+const diffDays = Math.ceil(trialPeriod - diffTime / (1000 * 60 * 60 * 24));
+
+if (diffDays > 0) {
+    trialDaysElement.textContent = `You're remaining with: ${diffDays} trial days`;
+} else {
+    trialDaysElement.textContent = "Trial expired";
+}
 </script>
 
 </body>
