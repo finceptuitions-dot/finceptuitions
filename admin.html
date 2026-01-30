@@ -3,136 +3,164 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fincep Tuitions Admin Panel</title>
+<title>Admin - Fincep Tuitions</title>
 <meta name="theme-color" content="#0B3D91">
 <style>
-body { font-family: Arial, sans-serif; background-color: #f0f8ff; margin:0; padding:0; }
-header { background-color: #0B3D91; color: white; padding: 15px; text-align: center; }
-.container { max-width: 600px; margin: auto; padding: 20px; }
-input, select { width: 100%; padding: 8px; margin: 8px 0; border-radius: 5px; border: 1px solid #ccc; }
-button { background-color: #0B3D91; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; }
-button:hover { background-color: #0951b0; }
-.hidden { display: none; }
+body { font-family: Arial, sans-serif; background:#f0f8ff; margin:0; padding:20px; }
+.container { max-width:600px; margin:auto; background:white; padding:20px; border-radius:12px; box-shadow:0 3px 10px rgba(0,0,0,0.2); }
+h2 { text-align:center; color:#0B3D91; }
+input, select { width:100%; padding:10px; margin:8px 0; border-radius:6px; border:1px solid #ccc; }
+button { background:#0B3D91; color:white; border:none; padding:10px; border-radius:6px; cursor:pointer; font-weight:bold; width:100%; transition:0.2s; }
+button:hover { background:#0951b0; }
+.hidden { display:none; }
 </style>
 </head>
 <body>
 
-<header>
-  <h2>Fincep Tuitions Admin Panel</h2>
-</header>
-
-<div class="container" id="admin-container">
-
-  <!-- Admin Code Form -->
-  <div id="code-form">
-    <label for="admin-code">Enter Admin Code:</label>
-    <input type="password" id="admin-code" placeholder="Enter secret admin code">
-    <button id="code-submit">Submit</button>
-  </div>
-
-  <!-- Upload Form -->
-  <div id="upload-form" class="hidden">
-    <h3>Upload Content</h3>
-
-    <label for="content-type">Content Type</label>
-    <select id="content-type">
-      <option value="videos">Videos</option>
-      <option value="documents">Documents</option>
-      <option value="pastpapers">Past Papers</option>
-      <option value="assignments">Assignments</option>
-    </select>
-
-    <label for="subject">Subject</label>
-    <input type="text" id="subject" placeholder="e.g. Math">
-
-    <label for="grade">Grade (10/11/12)</label>
-    <input type="text" id="grade" placeholder="Leave blank for Past Papers">
-
-    <label for="term">Term (1/2/3)</label>
-    <input type="text" id="term" placeholder="Leave blank for Past Papers">
-
-    <label for="year">Year (for Past Papers)</label>
-    <input type="text" id="year" placeholder="Leave blank for other content">
-
-    <label for="title">File Title</label>
-    <input type="text" id="title" placeholder="e.g. Algebra Notes Term 1">
-
-    <label for="link">Google Drive Link</label>
-    <input type="url" id="link" placeholder="https://drive.google.com/...">
-
-    <button id="upload-btn">Upload to Firestore</button>
-  </div>
-
+<div class="container" id="codeContainer">
+  <h2>Enter Admin Code</h2>
+  <input type="password" id="adminCode" placeholder="Enter your code">
+  <button onclick="checkCode()">Enter</button>
 </div>
 
-<!-- Firebase SDK -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.1/firebase-app.js";
-import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.6.1/firebase-firestore.js";
+<div class="container hidden" id="adminContainer">
+  <h2>Upload Content</h2>
+  <label>Type</label>
+  <select id="typeSelect" onchange="typeChanged()">
+    <option value="">--Select Type--</option>
+    <option value="Document">Document</option>
+    <option value="Video">Video</option>
+    <option value="PastPaper">Past Paper</option>
+    <option value="Task">Task</option>
+  </select>
 
-// Firebase configuration
+  <!-- Dynamic Fields -->
+  <div id="dynamicFields"></div>
+
+  <button onclick="saveData()">Save</button>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script>
+// Firebase Config
 const firebaseConfig = {
-    apiKey: "AIzaSyCBFObaNdHuPDVM3eo-1qtJ0ENQ3vf1oOc",
+  apiKey: "AIzaSyCBFObaNdHuPDVM3eo-1qtJ0ENQ3vf1oOc",
   authDomain: "finceponlinetuitions.firebaseapp.com",
   projectId: "finceponlinetuitions",
   storageBucket: "finceponlinetuitions.appspot.com",
   messagingSenderId: "562071475466",
-  appId: "1:562071475466:web:1823cb7c22b64729dd16f3"
+  appId: "1:562071475466:web:182cb7c22b64729dd16f3"
 };
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+// Security Code
+const ADMIN_CODE = "1234"; // replace with your code
+function checkCode(){
+  const code = document.getElementById("adminCode").value;
+  if(code === ADMIN_CODE){
+    document.getElementById("codeContainer").classList.add("hidden");
+    document.getElementById("adminContainer").classList.remove("hidden");
+  } else { alert("Incorrect code"); }
+}
 
-// --- Admin Code ---
-const SECRET_CODE = "Admin2"; // Change this to your own secret code
-const codeForm = document.getElementById("code-form");
-const codeInput = document.getElementById("admin-code");
-const codeSubmit = document.getElementById("code-submit");
-const uploadForm = document.getElementById("upload-form");
+// Dynamic fields
+const dynamicFields = document.getElementById("dynamicFields");
 
-codeSubmit.onclick = () => {
-    if (codeInput.value === SECRET_CODE) {
-        codeForm.classList.add("hidden");
-        uploadForm.classList.remove("hidden");
-    } else {
-        alert("Incorrect admin code!");
-    }
-};
+function typeChanged(){
+  const type = document.getElementById("typeSelect").value;
+  dynamicFields.innerHTML = ""; // clear previous fields
 
-// --- Upload Button ---
-const uploadBtn = document.getElementById("upload-btn");
-uploadBtn.onclick = async () => {
-    const type = document.getElementById("content-type").value;
-    const subject = document.getElementById("subject").value.trim();
-    const grade = document.getElementById("grade").value.trim();
-    const term = document.getElementById("term").value.trim();
-    const year = document.getElementById("year").value.trim();
-    const title = document.getElementById("title").value.trim();
-    const link = document.getElementById("link").value.trim();
+  if(type==="Document" || type==="Video"){
+    dynamicFields.innerHTML = `
+      <label>Subject</label>
+      <input type="text" id="subject">
+      <label>Grade</label>
+      <select id="grade">
+        <option value="">--Select Grade--</option>
+        <option>10</option>
+        <option>11</option>
+        <option>12</option>
+      </select>
+      <label>Term</label>
+      <select id="term">
+        <option value="">--Select Term--</option>
+        <option>1</option>
+        <option>2</option>
+        <option>3</option>
+      </select>
+      <label>Title</label>
+      <input type="text" id="title" placeholder="Enter Title">
+      <label>Google Drive Link</label>
+      <input type="text" id="link" placeholder="Enter Link">`;
+  } 
+  else if(type==="PastPaper"){
+    dynamicFields.innerHTML = `
+      <label>Subject</label>
+      <input type="text" id="subject">
+      <label>Year</label>
+      <input type="text" id="year" placeholder="2026">
+      <label>Title</label>
+      <input type="text" id="title" placeholder="Enter Title">
+      <label>Google Drive Link</label>
+      <input type="text" id="link" placeholder="Enter Link">`;
+  } 
+  else if(type==="Task"){
+    dynamicFields.innerHTML = `
+      <label>Title</label>
+      <input type="text" id="title" placeholder="Enter Task Title">
+      <label>Description</label>
+      <input type="text" id="description" placeholder="Enter Description">
+      <label>Assigned Date</label>
+      <input type="date" id="assignedDate">
+      <label>Due Date</label>
+      <input type="date" id="dueDate">
+      <label>Google Drive Link</label>
+      <input type="text" id="link" placeholder="Enter Link">`;
+  }
+}
 
-    if (!type || !subject || !title || !link) {
-        alert("Please fill all required fields!");
-        return;
-    }
+// Save Data
+function saveData(){
+  const type = document.getElementById("typeSelect").value;
+  if(!type){ alert("Select type"); return; }
 
-    try {
-        await addDoc(collection(db, type), {
-            subject, grade, term, year, title, link
-        });
-        alert("Content uploaded successfully!");
-        // Clear form
-        document.getElementById("subject").value = "";
-        document.getElementById("grade").value = "";
-        document.getElementById("term").value = "";
-        document.getElementById("year").value = "";
-        document.getElementById("title").value = "";
-        document.getElementById("link").value = "";
-    } catch (err) {
-        console.error("Error uploading content:", err);
-        alert("Error uploading content. Check console.");
-    }
-};
+  let data = {};
+  if(type==="Document" || type==="Video"){
+    const subject = document.getElementById("subject").value;
+    const grade = document.getElementById("grade").value;
+    const term = document.getElementById("term").value;
+    const title = document.getElementById("title").value;
+    const link = document.getElementById("link").value;
+    if(!subject||!grade||!term||!title||!link){ alert("Fill all fields"); return; }
+    data = {type, subject, grade, term, title, link};
+  } 
+  else if(type==="PastPaper"){
+    const subject = document.getElementById("subject").value;
+    const year = document.getElementById("year").value;
+    const title = document.getElementById("title").value;
+    const link = document.getElementById("link").value;
+    if(!subject||!year||!title||!link){ alert("Fill all fields"); return; }
+    data = {type, subject, year, title, link};
+  } 
+  else if(type==="Task"){
+    const title = document.getElementById("title").value;
+    const description = document.getElementById("description").value;
+    const assignedDate = document.getElementById("assignedDate").value;
+    const dueDate = document.getElementById("dueDate").value;
+    const link = document.getElementById("link").value;
+    if(!title||!description||!assignedDate||!dueDate||!link){ alert("Fill all fields"); return; }
+    data = {type, title, description, assignedDate, dueDate, link};
+  }
+
+  // Save to Firestore
+  let collectionName = type==="Task" ? "tasks" : type==="PastPaper" ? "past papers" : type==="Document" ? "documents" : "videos";
+  db.collection(collectionName).add(data)
+    .then(()=> { alert("Uploaded successfully!"); dynamicFields.innerHTML=""; document.getElementById("typeSelect").value=""; })
+    .catch(err=> { alert("Error: "+err); });
+}
 </script>
-
 </body>
 </html>
