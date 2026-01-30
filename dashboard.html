@@ -171,6 +171,13 @@ body {
     height: 24px;
     fill: white;
 }
+
+.user-name-display {
+    font-weight: bold;
+    color: white;
+    margin-bottom: 15px;
+    text-align: center;
+}
 </style>
 </head>
 
@@ -187,18 +194,18 @@ body {
     </div>
 
     <h2>Fincep Tuitions</h2>
-    <p id="trial-days">You're remaining with: 30 trial days</p>
+    <p id="trial-days">You're remaining with: 7 trial days</p>
     <p class="welcome-msg">Welcome!</p>
 
     <nav id="hamburger-menu" class="hamburger-menu">
         <div style="text-align:center; margin-bottom: 20px;">
             <img src="fincep.jpg" alt="Logo" style="width: 100px; border-radius: 50%;">
+            <p class="user-name-display" id="user-name">Loading...</p>
         </div>
 
         <ul>
             <li><a href="profile.html"><i class="fas fa-user"></i> Profile</a></li>
             <li><a href="task.html"><i class="fas fa-tasks"></i> Tasks</a></li>
-            
             <li><a href="calculator.html"><i class="fas fa-calculator"></i> Calculator</a></li>
             <li><a href="about.html"><i class="fas fa-info-circle"></i> About Us</a></li>
             <li><a href="admin.html"><i class="fas fa-user-shield"></i> Admin</a></li>
@@ -251,8 +258,26 @@ body {
     </a>
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
 <script>
-// ---- Hamburger Menu ----
+// Firebase config
+var firebaseConfig = {
+  apiKey: "AIzaSyCBFObaNdHuPDVM3eo-1qtJ0ENQ3vf1oOc",
+  authDomain: "finceponlinetuitions.firebaseapp.com",
+  projectId: "finceponlinetuitions",
+  storageBucket: "finceponlinetuitions.appspot.com",
+  messagingSenderId: "562071475466",
+  appId: "1:562071475466:web:182cb7c22b64729dd16f3"
+};
+
+firebase.initializeApp(firebaseConfig);
+var auth = firebase.auth();
+var db = firebase.firestore();
+
+// Hamburger Menu
 const menuBtn = document.getElementById('menu-btn');
 const menu = document.getElementById('hamburger-menu');
 const overlay = document.getElementById('hamburger-overlay');
@@ -261,43 +286,48 @@ menuBtn.onclick = () => {
     menu.classList.toggle('active');
     overlay.style.display = menu.classList.contains('active') ? 'block' : 'none';
 };
-
 overlay.onclick = () => {
     menu.classList.remove('active');
     overlay.style.display = 'none';
 };
 
-// ---- Logout ----
+// Logout
 document.getElementById('logout-btn').onclick = () => {
-    location.href = 'index.html';
+    auth.signOut().then(()=> window.location.href = "login.html");
 };
 
-// ---- Welcome & Trial Countdown ----
+// Fetch user info & trial days
 const trialDaysElement = document.getElementById('trial-days');
 const welcomeElement = document.querySelector('.welcome-msg');
+const userNameElement = document.getElementById('user-name');
 
-let userName = localStorage.getItem('userName');
-if (!userName) {
-    userName = "Guest";
-    localStorage.setItem('userName', userName);
-}
-welcomeElement.textContent = `Welcome, ${userName}!`;
+auth.onAuthStateChanged(user => {
+    if (user) {
+        const uid = user.uid;
+        db.collection("users").doc(uid).get().then(doc => {
+            if (doc.exists) {
+                const data = doc.data();
+                const name = data.name || "User";
+                userNameElement.textContent = name;
+                welcomeElement.textContent = `Welcome, ${name}!`;
 
-const trialPeriod = 30;
-let startDate = localStorage.getItem('trialStart');
-if (!startDate) {
-    startDate = new Date().toISOString();
-    localStorage.setItem('trialStart', startDate);
-}
+                // Trial days calculation
+                const trialPeriod = 7;
+                const createdAt = data.createdAt ? data.createdAt.toDate() : new Date();
+                const today = new Date();
+                const diffTime = today - createdAt;
+                const diffDays = Math.ceil(trialPeriod - diffTime / (1000*60*60*24));
 
-const start = new Date(startDate);
-const today = new Date();
-const diffTime = today - start;
-const diffDays = Math.ceil(trialPeriod - diffTime / (1000 * 60 * 60 * 24));
-
-trialDaysElement.textContent = diffDays > 0 
-    ? `You're remaining with: ${diffDays} trial days` 
-    : "Trial expired";
+                trialDaysElement.textContent = diffDays > 0
+                    ? `You're remaining with: ${diffDays} trial days`
+                    : "Trial expired";
+            }
+        }).catch(err => console.error(err));
+    } else {
+        // Not logged in
+        window.location.href = "login.html";
+    }
+});
 </script>
 
 <!-- WhatsApp Floating Button -->
