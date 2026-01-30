@@ -171,13 +171,6 @@ body {
     height: 24px;
     fill: white;
 }
-
-.user-name-display {
-    font-weight: bold;
-    color: white;
-    margin-bottom: 15px;
-    text-align: center;
-}
 </style>
 </head>
 
@@ -200,7 +193,7 @@ body {
     <nav id="hamburger-menu" class="hamburger-menu">
         <div style="text-align:center; margin-bottom: 20px;">
             <img src="fincep.jpg" alt="Logo" style="width: 100px; border-radius: 50%;">
-            <p class="user-name-display" id="user-name">Loading...</p>
+            <p id="hamburger-username" style="color:white; font-weight:bold; margin-top:8px;"></p>
         </div>
 
         <ul>
@@ -258,84 +251,64 @@ body {
     </a>
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-
-<script>
-// Firebase config
-var firebaseConfig = {
-  apiKey: "AIzaSyCBFObaNdHuPDVM3eo-1qtJ0ENQ3vf1oOc",
-  authDomain: "finceponlinetuitions.firebaseapp.com",
-  projectId: "finceponlinetuitions",
-  storageBucket: "finceponlinetuitions.appspot.com",
-  messagingSenderId: "562071475466",
-  appId: "1:562071475466:web:182cb7c22b64729dd16f3"
-};
-
-firebase.initializeApp(firebaseConfig);
-var auth = firebase.auth();
-var db = firebase.firestore();
-
-// Hamburger Menu
-const menuBtn = document.getElementById('menu-btn');
-const menu = document.getElementById('hamburger-menu');
-const overlay = document.getElementById('hamburger-overlay');
-
-menuBtn.onclick = () => {
-    menu.classList.toggle('active');
-    overlay.style.display = menu.classList.contains('active') ? 'block' : 'none';
-};
-overlay.onclick = () => {
-    menu.classList.remove('active');
-    overlay.style.display = 'none';
-};
-
-// Logout
-document.getElementById('logout-btn').onclick = () => {
-    auth.signOut().then(()=> window.location.href = "login.html");
-};
-
-// Fetch user info & trial days
-const trialDaysElement = document.getElementById('trial-days');
-const welcomeElement = document.querySelector('.welcome-msg');
-const userNameElement = document.getElementById('user-name');
-
-auth.onAuthStateChanged(user => {
-    if (user) {
-        const uid = user.uid;
-        db.collection("users").doc(uid).get().then(doc => {
-            if (doc.exists) {
-                const data = doc.data();
-                const name = data.name || "User";
-                userNameElement.textContent = name;
-                welcomeElement.textContent = `Welcome, ${name}!`;
-
-                // Trial days calculation
-                const trialPeriod = 7;
-                const createdAt = data.createdAt ? data.createdAt.toDate() : new Date();
-                const today = new Date();
-                const diffTime = today - createdAt;
-                const diffDays = Math.ceil(trialPeriod - diffTime / (1000*60*60*24));
-
-                trialDaysElement.textContent = diffDays > 0
-                    ? `You're remaining with: ${diffDays} trial days`
-                    : "Trial expired";
-            }
-        }).catch(err => console.error(err));
-    } else {
-        // Not logged in
-        window.location.href = "login.html";
-    }
-});
-</script>
-
 <!-- WhatsApp Floating Button -->
 <a href="https://chat.whatsapp.com/HL0hEWhZkyrBl3jihvCy9w" class="whatsapp-float" target="_blank" aria-label="Join WhatsApp Group">
     <svg viewBox="0 0 32 32" aria-hidden="true">
         <path d="M16 0C7.164 0 0 6.94 0 15.5c0 2.73.73 5.41 2.11 7.77L0 32l9.07-2.38A16.33 16.33 0 0 0 16 31c8.836 0 16-6.94 16-15.5S24.836 0 16 0zm0 28.18c-2.47 0-4.89-.63-7.03-1.83l-.5-.29-5.38 1.41 1.44-5.12-.33-.52A12.62 12.62 0 0 1 3.82 15.5C3.82 8.95 9.32 3.82 16 3.82s12.18 5.13 12.18 11.68S22.68 28.18 16 28.18zm6.6-9.09c-.36-.18-2.14-1.04-2.47-1.16-.33-.12-.58-.18-.83.18-.25.36-.96 1.16-1.18 1.4-.22.24-.44.27-.8.09-.36-.18-1.53-.55-2.91-1.76-1.07-.93-1.79-2.08-2-2.44-.21-.36-.02-.56.16-.74.16-.16.36-.41.54-.61.18-.2.24-.34.36-.57.12-.24.06-.45-.03-.63-.09-.18-.83-1.98-1.14-2.71-.3-.72-.61-.62-.83-.63h-.71c-.24 0-.63.09-.96.45-.33.36-1.26 1.23-1.26 3 0 1.77 1.29 3.48 1.47 3.72.18.24 2.54 3.87 6.16 5.43.86.36 1.53.58 2.05.74.86.27 1.65.23 2.27.14.69-.1 2.14-.86 2.44-1.69.3-.83.3-1.54.21-1.69-.09-.15-.33-.24-.69-.42z"/>
     </svg>
 </a>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+<script>
+var firebaseConfig = {
+  apiKey: "AIzaSyCBFObaNdHuPDVM3eo-1qtJ0ENQ3vf1oOc",
+  authDomain: "finceponlinetuitions.firebaseapp.com",
+  projectId: "finceponlinetuitions",
+  storageBucket: "finceponlinetuitions.appspot.com",
+  messagingSenderId: "562071475466",
+  appId: "1:562071475466:web:1823cb7c22b64729dd16f3"
+};
+firebase.initializeApp(firebaseConfig);
+var auth = firebase.auth();
+var db = firebase.firestore();
+
+// Hamburger Menu Toggle
+const menuBtn = document.getElementById('menu-btn');
+const menu = document.getElementById('hamburger-menu');
+const overlay = document.getElementById('hamburger-overlay');
+menuBtn.onclick = () => { menu.classList.toggle('active'); overlay.style.display = menu.classList.contains('active')?'block':'none'; };
+overlay.onclick = () => { menu.classList.remove('active'); overlay.style.display = 'none'; };
+
+// Logout
+document.getElementById('logout-btn').onclick = () => { auth.signOut().then(()=> window.location.replace("login.html")); };
+
+// Fetch user info and display name & trial
+auth.onAuthStateChanged(function(user){
+    if(user){
+        db.collection("users").doc(user.uid).get().then(function(doc){
+            if(doc.exists){
+                const data = doc.data();
+                document.querySelector('.welcome-msg').textContent = `Welcome, ${data.name}!`;
+                document.getElementById('hamburger-username').textContent = data.name;
+                document.getElementById('trial-days').textContent = computeTrialDays(data.trialStart, data.trialDays);
+            }
+        });
+    } else {
+        window.location.replace("login.html");
+    }
+});
+
+function computeTrialDays(trialStart, trialDays){
+    const start = new Date(trialStart);
+    const today = new Date();
+    const diff = Math.floor((today - start)/(1000*60*60*24));
+    const remaining = trialDays - diff;
+    return remaining>0 ? `You're remaining with: ${remaining} trial days` : "Trial expired";
+}
+</script>
 
 </body>
 </html>
