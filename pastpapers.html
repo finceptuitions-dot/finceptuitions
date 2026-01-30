@@ -4,432 +4,137 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Past Papers</title>
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0B3D91">
 <style>
-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background-color: #f0f8ff;
-    color: #0B3D91;
-}
+body { font-family: Arial, sans-serif; margin:0; background:#f0f8ff; }
+header { background:#0B3D91; color:white; padding:15px 20px; display:flex; align-items:center; box-shadow:0 2px 6px rgba(0,0,0,0.2); position:relative; }
+header h1 { margin:0; font-size:1.5em; flex-grow:1; text-align:center; }
+.back-btn { position:absolute; left:15px; background:none; border:none; font-size:24px; cursor:pointer; color:white; }
 
-/* Year Bar */
-.year-bar {
-    display: flex;
-    overflow-x: auto;
-    scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
-    background-color: #0B3D91;
-    padding: 10px;
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-}
+.container { max-width:900px; margin:20px auto; display:grid; grid-template-columns:1fr 1fr; gap:15px; padding:0 10px; }
 
-/* Year Buttons */
-.year-bar button {
-    background-color: #87CEFA;
-    color: #0B3D91;
-    border: none;
-    padding: 8px 16px;
-    margin-right: 8px;
-    border-radius: 20px;
-    cursor: pointer;
-    white-space: nowrap;
-    font-weight: bold;
-    flex-shrink: 0;
-}
+.card { background:white; padding:20px; border-radius:12px; box-shadow:0 3px 8px rgba(0,0,0,0.15); text-align:center; font-weight:bold; color:#0B3D91; cursor:pointer; transition:transform 0.2s, background 0.2s; }
+.card:hover { transform:translateY(-3px); background:#e6f2ff; }
 
-.year-bar button.active {
-    background-color: #00BFFF;
-    color: white;
-}
-
-/* Custom scrollbar for year bar */
-.year-bar::-webkit-scrollbar {
-    height: 8px;
-}
-.year-bar::-webkit-scrollbar-track {
-    background: #0B3D91;
-}
-.year-bar::-webkit-scrollbar-thumb {
-    background-color: #87CEFA;
-    border-radius: 20px;
-}
-
-/* Back Button - simple rectangle with arrow */
-.back-btn {
-    display: inline-block;
-    margin: 10px 15px;
-    padding: 6px 12px;
-    background-color: #00BFFF;
-    color: white;
-    text-decoration: none;
-    border-radius: 8px;
-    font-size: 16px;
-    font-weight: bold;
-    line-height: 1;
-    text-align: center;
-    transition: background 0.3s ease, transform 0.2s ease;
-}
-
-.back-btn:hover {
-    background-color: #42a5f5;
-    transform: translateY(-2px);
-}
-
-/* Content */
-.content {
-    padding: 15px;
-}
-
-/* Subject Cards */
-.subject-card {
-    background-color: #0B3D91;
-    border-radius: 10px;
-    margin-bottom: 15px;
-    cursor: pointer;
-    overflow: hidden;
-}
-
-.subject-card h3 {
-    margin: 0;
-    color: #87CEFA;
-    font-size: 20px;
-    padding: 15px;
-    border-bottom: 1px solid #87CEFA;
-}
-
-/* Paper Container (collapsible) */
-.paper-container {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.3s ease;
-}
-
-/* Paper Cards */
-.paper {
-    background-color: #87CEFA;
-    color: #0B3D91;
-    border-radius: 8px;
-    padding: 12px;
-    margin: 10px 15px;
-}
-
-.paper h4 {
-    margin: 0 0 5px;
-    font-size: 16px;
-}
-
-.paper p {
-    margin: 0 0 8px;
-    font-size: 14px;
-}
-
-.paper a {
-    background-color: #0B3D91;
-    color: white;
-    text-decoration: none;
-    padding: 6px 12px;
-    border-radius: 5px;
-    font-size: 13px;
-}
-
-.paper a:hover {
-    opacity: 0.8;
-}
+#viewer { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:1000; flex-direction:column; justify-content:center; align-items:center; }
+#viewer button { position:absolute; top:20px; right:20px; font-size:28px; background:none; border:none; color:white; cursor:pointer; }
+#viewer iframe { width:90%; height:90vh; border:none; border-radius:8px; }
 </style>
 </head>
 <body>
 
-<!-- Year Bar -->
-<div class="year-bar" id="yearBar"></div>
+<header>
+<button class="back-btn" onclick="goBack()">&#8592;</button>
+<h1>Past Papers</h1>
+</header>
 
-<!-- Back to Dashboard -->
-<a href="dashboard.html" class="back-btn">&#8592; Back</a>
+<div id="mainContainer" class="container"></div>
 
-<!-- Content -->
-<div class="content" id="content"></div>
+<!-- Full screen viewer -->
+<div id="viewer">
+  <button onclick="closeViewer()">&times;</button>
+  <iframe id="paperFrame"></iframe>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
-// ======== Dynamic Data ========
-const papersData = {
-    2025: {
-        AdditionalMathematics: [
-            { title: "Science Paper 1", description: "GCE", link: "https://drive.google.com/file/d/YOUR_FILE_ID1/preview" },
-            { title: "SciencePaper 2", description: "Internal", link: "https://drive.google.com/file/d/YOUR_FILE_ID2/preview" }
-        ],
-        Biology: [
-            { title: "English Paper 1", description: "Internal", link: "https://drive.google.com/file/d/YOUR_FILE_ID3/preview" }
-        ],     
-        CivicEducation: [
-            { title: "English Paper 1", description: "Internal", link: "https://drive.google.com/file/d/YOUR_FILE_ID3/preview" }
-        ],
-        English: [
-            { title: "English Paper 1", description: "Internal", link: "https://drive.google.com/file/d/YOUR_FILE_ID3/preview" }
-        ],
-        Geography: [
-            { title: "English Paper 1", description: "Internal", link: "https://drive.google.com/file/d/YOUR_FILE_ID3/preview" }
-        ],
-        Mathematics: [
-            { title: "English Paper 1", description: "Internal", link: "https://drive.google.com/file/d/YOUR_FILE_ID3/preview" }
-        ],
-        Pccounts: [
-            { title: "English Paper 1", description: "Internal", link: "https://drive.google.com/file/d/YOUR_FILE_ID3/preview" }
-        ],
-        Rducation2044: [
-            { title: "English Paper 1", description: "Internal", link: "https://drive.google.com/file/d/YOUR_FILE_ID3/preview" }
-        ],
-        REducation2046: [
-            { title: "English Paper 1", description: "Internal", link: "https://drive.google.com/file/d/YOUR_FILE_ID3/preview" }
-        ],
-        Science: [
-            { title: "English Paper 1", description: "Internal", link: "https://drive.google.com/file/d/YOUR_FILE_ID3/preview" }
-        ]
-    },
-    2024: {
-        AdditionalMathematics: [
-            { title: "Science Paper 1", description: "GCE", link: "https://drive.google.com/file/d/YOUR_FILE_ID1/preview" },
-            { title: "SciencePaper 2", description: "Internal", link: "https://drive.google.com/file/d/YOUR_FILE_ID2/preview" }
-        ],
-        Biology: [
-            { title: "English Paper 1", description: "Internal", link: "https://drive.google.com/file/d/YOUR_FILE_ID3/preview" }
-        ],     
-        CivicEducation: [
-            { title: "English Paper 1", description: "Internal", link: "https://drive.google.com/file/d/YOUR_FILE_ID3/preview" }
-        ],
-        English: [
-            { title: "English Paper 1", description: "Internal", link: "https://drive.google.com/file/d/YOUR_FILE_ID3/preview" }
-        ],
-        Geography: [
-            { title: "English Paper 1", description: "Internal", link: "https://drive.google.com/file/d/YOUR_FILE_ID3/preview" }
-        ],
-        Mathematics: [
-            { title: "English Paper 1", description: "Internal", link: "https://drive.google.com/file/d/YOUR_FILE_ID3/preview" }
-        ],
-        Pccounts: [
-            { title: "English Paper 1", description: "Internal", link: "https://drive.google.com/file/d/YOUR_FILE_ID3/preview" }
-        ],
-        Rducation2044: [
-            { title: "English Paper 1", description: "Internal", link: "https://drive.google.com/file/d/YOUR_FILE_ID3/preview" }
-        ],
-        REducation2046: [
-            { title: "English Paper 1", description: "Internal", link: "https://drive.google.com/file/d/YOUR_FILE_ID3/preview" }
-        ],
-        Science: [
-            { title: "English Paper 1", description: "Internal", link: "https://drive.google.com/file/d/YOUR_FILE_ID3/preview" }
-        ]
-    },
-2023: {
-   AdditionalMathematics: [
-            { title: "Science Paper 1", description: "GCE", link: "https://drive.google.com/file/d/YOUR_FILE_ID1/preview" },
-            { title: "SciencePaper 2", description: "Internal", link: "https://drive.google.com/file/d/YOUR_FILE_ID2/preview" }
-        ],
-        Biology: [
-            { title: "English Paper 1", description: "Internal", link: "https://drive.google.com/file/d/YOUR_FILE_ID3/preview" }
-        ],     
-        CivicEducation: [
-            { title: "English Paper 1", description: "Internal", link: "https://drive.google.com/file/d/YOUR_FILE_ID3/preview" }
-        ],
-        English: [
-            { title: "English Paper 1", description: "Internal", link: "https://drive.google.com/file/d/YOUR_FILE_ID3/preview" }
-        ],
-        Geography: [
-            { title: "English Paper 1", description: "Internal", link: "https://drive.google.com/file/d/YOUR_FILE_ID3/preview" }
-        ],
-        Mathematics: [
-            { title: "English Paper 1", description: "Internal", link: "https://drive.google.com/file/d/YOUR_FILE_ID3/preview" }
-        ],
-        Pccounts: [
-            { title: "English Paper 1", description: "Internal", link: "https://drive.google.com/file/d/YOUR_FILE_ID3/preview" }
-        ],
-        Rducation2044: [
-            { title: "English Paper 1", description: "Internal", link: "https://drive.google.com/file/d/YOUR_FILE_ID3/preview" }
-        ],
-        REducation2046: [
-            { title: "English Paper 1", description: "Internal", link: "https://drive.google.com/file/d/YOUR_FILE_ID3/preview" }
-        ],
-        Science: [
-            { title: "English Paper 1", description: "Internal", link: "https://drive.google.com/file/d/YOUR_FILE_ID3/preview" }
-        ]
-    },
-2022: {
-   AdditionalMathematics: [
-            { title: "Science Paper 1", description: "GCE", link: "https://drive.google.com/file/d/YOUR_FILE_ID1/preview" },
-            { title: "SciencePaper 2", description: "Internal", link: "https://drive.google.com/file/d/YOUR_FILE_ID2/preview" }
-        ],
-        Biology: [
-            { title: "English Paper 1", description: "Internal", link: "https://drive.google.com/file/d/YOUR_FILE_ID3/preview" }
-        ],     
-        CivicEducation: [
-            { title: "English Paper 1", description: "Internal", link: "https://drive.google.com/file/d/YOUR_FILE_ID3/preview" }
-        ],
-        English: [
-            { title: "English Paper 1", description: "Internal", link: "https://drive.google.com/file/d/YOUR_FILE_ID3/preview" }
-        ],
-        Geography: [
-            { title: "English Paper 1", description: "Internal", link: "https://drive.google.com/file/d/YOUR_FILE_ID3/preview" }
-        ],
-        Mathematics: [
-            { title: "English Paper 1", description: "Internal", link: "https://drive.google.com/file/d/YOUR_FILE_ID3/preview" }
-        ],
-        Pccounts: [
-            { title: "English Paper 1", description: "Internal", link: "https://drive.google.com/file/d/YOUR_FILE_ID3/preview" }
-        ],
-        Rducation2044: [
-            { title: "English Paper 1", description: "Internal", link: "https://drive.google.com/file/d/YOUR_FILE_ID3/preview" }
-        ],
-        REducation2046: [
-            { title: "English Paper 1", description: "Internal", link: "https://drive.google.com/file/d/YOUR_FILE_ID3/preview" }
-        ],
-        Science: [
-            { title: "English Paper 1", description: "Internal", link: "https://drive.google.com/file/d/YOUR_FILE_ID3/preview" }
-        ]
-    },
-2021: {
-    AdditionalMathematics: [
-            { title: "Science Paper 1", description: "GCE", link: "https://drive.google.com/file/d/YOUR_FILE_ID1/preview" },
-            { title: "SciencePaper 2", description: "Internal", link: "https://drive.google.com/file/d/YOUR_FILE_ID2/preview" }
-        ],
-        Biology: [
-            { title: "English Paper 1", description: "Internal", link: "https://drive.google.com/file/d/YOUR_FILE_ID3/preview" }
-        ],     
-        CivicEducation: [
-            { title: "English Paper 1", description: "Internal", link: "https://drive.google.com/file/d/YOUR_FILE_ID3/preview" }
-        ],
-        English: [
-            { title: "English Paper 1", description: "Internal", link: "https://drive.google.com/file/d/YOUR_FILE_ID3/preview" }
-        ],
-        Geography: [
-            { title: "English Paper 1", description: "Internal", link: "https://drive.google.com/file/d/YOUR_FILE_ID3/preview" }
-        ],
-        Mathematics: [
-            { title: "English Paper 1", description: "Internal", link: "https://drive.google.com/file/d/YOUR_FILE_ID3/preview" }
-        ],
-        Pccounts: [
-            { title: "English Paper 1", description: "Internal", link: "https://drive.google.com/file/d/YOUR_FILE_ID3/preview" }
-        ],
-        Rducation2044: [
-            { title: "English Paper 1", description: "Internal", link: "https://drive.google.com/file/d/YOUR_FILE_ID3/preview" }
-        ],
-        REducation2046: [
-            { title: "English Paper 1", description: "Internal", link: "https://drive.google.com/file/d/YOUR_FILE_ID3/preview" }
-        ],
-        Science: [
-            { title: "English Paper 1", description: "Internal", link: "https://drive.google.com/file/d/YOUR_FILE_ID3/preview" }
-        ]
-    },
-2020: {
-       AdditionalMathematics: [
-            { title: "Science Paper 1", description: "GCE", link: "https://drive.google.com/file/d/YOUR_FILE_ID1/preview" },
-            { title: "SciencePaper 2", description: "Internal", link: "https://drive.google.com/file/d/YOUR_FILE_ID2/preview" }
-        ],
-        Biology: [
-            { title: "English Paper 1", description: "Internal", link: "https://drive.google.com/file/d/YOUR_FILE_ID3/preview" }
-        ],     
-        CivicEducation: [
-            { title: "English Paper 1", description: "Internal", link: "https://drive.google.com/file/d/YOUR_FILE_ID3/preview" }
-        ],
-        English: [
-            { title: "English Paper 1", description: "Internal", link: "https://drive.google.com/file/d/YOUR_FILE_ID3/preview" }
-        ],
-        Geography: [
-            { title: "English Paper 1", description: "Internal", link: "https://drive.google.com/file/d/YOUR_FILE_ID3/preview" }
-        ],
-        Mathematics: [
-            { title: "English Paper 1", description: "Internal", link: "https://drive.google.com/file/d/YOUR_FILE_ID3/preview" }
-        ],
-        Pccounts: [
-            { title: "English Paper 1", description: "Internal", link: "https://drive.google.com/file/d/YOUR_FILE_ID3/preview" }
-        ],
-        Rducation2044: [
-            { title: "English Paper 1", description: "Internal", link: "https://drive.google.com/file/d/YOUR_FILE_ID3/preview" }
-        ],
-        REducation2046: [
-            { title: "English Paper 1", description: "Internal", link: "https://drive.google.com/file/d/YOUR_FILE_ID3/preview" }
-        ],
-        Science: [
-            { title: "English Paper 1", description: "Internal", link: "https://drive.google.com/file/d/YOUR_FILE_ID3/preview" }
-        ]
-    }
+// Firebase Config
+const firebaseConfig = {
+  apiKey: "AIzaSyCBFObaNdHuPDVM3eo-1qtJ0ENQ3vf1oOc",
+  authDomain: "finceponlinetuitions.firebaseapp.com",
+  projectId: "finceponlinetuitions",
+  storageBucket: "finceponlinetuitions.appspot.com",
+  messagingSenderId: "562071475466",
+  appId: "1:562071475466:web:182cb7c22b64729dd16f3"
 };
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
-// ======== Initialization ========
-const yearBar = document.getElementById("yearBar");
-const content = document.getElementById("content");
+let selectedSubject = null;
+let selectedYear = null;
+let papersData = []; // all past papers
 
-let currentYear = Object.keys(papersData).sort((a,b)=>b-a)[0];
+const container = document.getElementById("mainContainer");
 
-// Create year buttons dynamically
-Object.keys(papersData).sort((a,b)=>b-a).forEach(year => {
-    const btn = document.createElement("button");
-    btn.textContent = year;
-    if(year == currentYear) btn.classList.add("active");
-    btn.onclick = () => selectYear(year);
-    yearBar.appendChild(btn);
+// Step: Show Subjects first
+const subjects = ["Math","English","Physics","Chemistry","Biology","Economics"];
+const years = ["2026","2025","2024","2023","2022"]; // you can expand
+
+function showSubjects(){
+  container.innerHTML = "";
+  subjects.forEach(sub => {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.textContent = sub;
+    card.onclick = () => {
+      selectedSubject = sub;
+      showYears();
+    };
+    container.appendChild(card);
+  });
+}
+
+function showYears(){
+  container.innerHTML = "";
+  // collect years available for selected subject
+  let subjectPapers = papersData.filter(p => p.subject === selectedSubject);
+  let availableYears = [...new Set(subjectPapers.map(p => p.year))].sort((a,b)=>b-a); // descending
+
+  availableYears.forEach(yr => {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.textContent = yr;
+    card.onclick = () => {
+      selectedYear = yr;
+      showFiles();
+    };
+    container.appendChild(card);
+  });
+}
+
+function showFiles(){
+  container.innerHTML = "";
+  let files = papersData.filter(p => p.subject === selectedSubject && p.year === selectedYear);
+  if(files.length === 0){
+    container.innerHTML = "<p>No papers found.</p>";
+    return;
+  }
+
+  files.forEach(f => {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.textContent = f.title;
+    card.onclick = () => openViewer(f.link);
+    container.appendChild(card);
+  });
+}
+
+// Fetch all papers once
+db.collection("past papers").get().then(snapshot=>{
+  papersData = [];
+  snapshot.forEach(doc => papersData.push(doc.data()));
+  showSubjects();
+}).catch(err => {
+  container.innerHTML = "<p style='color:red;'>Error fetching papers: "+err+"</p>";
 });
 
-// ======== Functions ========
-function selectYear(year) {
-    currentYear = year;
-    document.querySelectorAll(".year-bar button").forEach(btn => {
-        btn.classList.toggle("active", btn.textContent == year);
-    });
-    renderContent();
+// Back button logic
+function goBack(){
+  if(selectedYear){ selectedYear=null; showYears(); }
+  else if(selectedSubject){ selectedSubject=null; showSubjects(); }
+  else { history.back(); }
 }
 
-function renderContent() {
-    content.innerHTML = "";
-    const subjects = papersData[currentYear];
-    for (let subject in subjects) {
-        const card = document.createElement("div");
-        card.className = "subject-card";
-
-        const title = document.createElement("h3");
-        title.textContent = subject;
-        card.appendChild(title);
-
-        const paperContainer = document.createElement("div");
-        paperContainer.className = "paper-container";
-
-        subjects[subject].forEach(paper => {
-            const paperDiv = document.createElement("div");
-            paperDiv.className = "paper";
-
-            const paperTitle = document.createElement("h4");
-            paperTitle.textContent = paper.title;
-            paperDiv.appendChild(paperTitle);
-
-            const paperDesc = document.createElement("p");
-            paperDesc.textContent = paper.description;
-            paperDiv.appendChild(paperDesc);
-
-            const link = document.createElement("a");
-            link.href = paper.link;
-            link.target = "_blank";
-            link.textContent = "View";
-            paperDiv.appendChild(link);
-
-            paperContainer.appendChild(paperDiv);
-        });
-
-        card.appendChild(paperContainer);
-        content.appendChild(card);
-
-        // Toggle collapse on click
-        title.onclick = () => {
-            if (paperContainer.style.maxHeight) {
-                paperContainer.style.maxHeight = null;
-            } else {
-                paperContainer.style.maxHeight = paperContainer.scrollHeight + "px";
-            }
-        };
-    }
+// Viewer
+function openViewer(link){
+  document.getElementById("viewer").style.display = "flex";
+  document.getElementById("paperFrame").src = link.replace("/view?usp=sharing","/preview");
 }
-
-// Initial render
-renderContent();
+function closeViewer(){
+  document.getElementById("viewer").style.display = "none";
+  document.getElementById("paperFrame").src = "";
+}
 </script>
 
 </body>

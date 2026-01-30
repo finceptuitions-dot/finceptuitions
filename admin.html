@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fincep Tuitions Admin Panel</title>
+<meta name="theme-color" content="#0B3D91">
+<style>
+body { font-family: Arial, sans-serif; background-color: #f0f8ff; margin:0; padding:0; }
+header { background-color: #0B3D91; color: white; padding: 15px; text-align: center; }
+.container { max-width: 600px; margin: auto; padding: 20px; }
+input, select { width: 100%; padding: 8px; margin: 8px 0; border-radius: 5px; border: 1px solid #ccc; }
+button { background-color: #0B3D91; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+button:hover { background-color: #0951b0; }
+.hidden { display: none; }
+</style>
+</head>
+<body>
+
+<header>
+  <h2>Fincep Tuitions Admin Panel</h2>
+</header>
+
+<div class="container" id="admin-container">
+
+  <!-- Admin Code Form -->
+  <div id="code-form">
+    <label for="admin-code">Enter Admin Code:</label>
+    <input type="password" id="admin-code" placeholder="Enter secret admin code">
+    <button id="code-submit">Submit</button>
+  </div>
+
+  <!-- Upload Form -->
+  <div id="upload-form" class="hidden">
+    <h3>Upload Content</h3>
+
+    <label for="content-type">Content Type</label>
+    <select id="content-type">
+      <option value="videos">Videos</option>
+      <option value="documents">Documents</option>
+      <option value="pastpapers">Past Papers</option>
+      <option value="assignments">Assignments</option>
+    </select>
+
+    <label for="subject">Subject</label>
+    <input type="text" id="subject" placeholder="e.g. Math">
+
+    <label for="grade">Grade (10/11/12)</label>
+    <input type="text" id="grade" placeholder="Leave blank for Past Papers">
+
+    <label for="term">Term (1/2/3)</label>
+    <input type="text" id="term" placeholder="Leave blank for Past Papers">
+
+    <label for="year">Year (for Past Papers)</label>
+    <input type="text" id="year" placeholder="Leave blank for other content">
+
+    <label for="title">File Title</label>
+    <input type="text" id="title" placeholder="e.g. Algebra Notes Term 1">
+
+    <label for="link">Google Drive Link</label>
+    <input type="url" id="link" placeholder="https://drive.google.com/...">
+
+    <button id="upload-btn">Upload to Firestore</button>
+  </div>
+
+</div>
+
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.1/firebase-app.js";
+import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.6.1/firebase-firestore.js";
+
+// Firebase configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyCBFObaNdHuPDVM3eo-1qtJ0ENQ3vf1oOc",
+  authDomain: "finceponlinetuitions.firebaseapp.com",
+  projectId: "finceponlinetuitions",
+  storageBucket: "finceponlinetuitions.appspot.com",
+  messagingSenderId: "562071475466",
+  appId: "1:562071475466:web:1823cb7c22b64729dd16f3"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// --- Admin Code ---
+const SECRET_CODE = "Admin2"; // Change this to your own secret code
+const codeForm = document.getElementById("code-form");
+const codeInput = document.getElementById("admin-code");
+const codeSubmit = document.getElementById("code-submit");
+const uploadForm = document.getElementById("upload-form");
+
+codeSubmit.onclick = () => {
+    if (codeInput.value === SECRET_CODE) {
+        codeForm.classList.add("hidden");
+        uploadForm.classList.remove("hidden");
+    } else {
+        alert("Incorrect admin code!");
+    }
+};
+
+// --- Upload Button ---
+const uploadBtn = document.getElementById("upload-btn");
+uploadBtn.onclick = async () => {
+    const type = document.getElementById("content-type").value;
+    const subject = document.getElementById("subject").value.trim();
+    const grade = document.getElementById("grade").value.trim();
+    const term = document.getElementById("term").value.trim();
+    const year = document.getElementById("year").value.trim();
+    const title = document.getElementById("title").value.trim();
+    const link = document.getElementById("link").value.trim();
+
+    if (!type || !subject || !title || !link) {
+        alert("Please fill all required fields!");
+        return;
+    }
+
+    try {
+        await addDoc(collection(db, type), {
+            subject, grade, term, year, title, link
+        });
+        alert("Content uploaded successfully!");
+        // Clear form
+        document.getElementById("subject").value = "";
+        document.getElementById("grade").value = "";
+        document.getElementById("term").value = "";
+        document.getElementById("year").value = "";
+        document.getElementById("title").value = "";
+        document.getElementById("link").value = "";
+    } catch (err) {
+        console.error("Error uploading content:", err);
+        alert("Error uploading content. Check console.");
+    }
+};
+</script>
+
+</body>
+</html>
