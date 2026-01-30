@@ -51,32 +51,54 @@ iframe { width:100%; height:300px; border:none; border-radius:6px; margin-top:10
 
     <h2>Your Tasks</h2>
 
-    <!-- Task 1 -->
-    <div class="task">
-        <h3>Biology Assignment 1</h3>
-        <p><strong>Date Assigned:</strong> 26 Dec 2025</p>
-        <p><strong>Due Date:</strong> 31 Dec 2025</p>
-        <p><strong>Description:</strong> Answer Genetics questions from different past papers</p>
-        <iframe src="https://drive.google.com/file/d/1Pp3orfjqj-pihJQiymuoVNoxPVZSV89E/preview"></iframe>
-        <a href="https://wa.me/260774177403?text=I%20have%20submitted%20Biology%20Assignment%201" target="_blank">
-            <button class="submit-btn">Submit To the Admin</button>
-        </a>
-    </div>
-
-    <!-- Task 2 -->
-    <div class="task">
-        <h3>Math Assignment 1</h3>
-        <p><strong>Date Assigned:</strong> 26 Dec 2025</p>
-        <p><strong>Due Date:</strong> 30 Dec 2025</p>
-        <p><strong>Description:</strong> Solve the calculus problems in Chapter 5</p>
-        <iframe src="https://drive.google.com/file/d/1abcdEFGhijklmNOPQR2/preview"></iframe>
-        <a href="https://wa.me/260774177403?text=I%20have%20submitted%20Math%20Assignment%201" target="_blank">
-            <button class="submit-btn">Submit To the Admin</button>
-        </a>
-    </div>
-
-    <!-- Add more tasks as needed -->
+    <div id="tasksContainer"></div>
 </div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script>
+// Firebase Config (replace with your own)
+const firebaseConfig = {
+  apiKey: "AIzaSyCBFObaNdHuPDVM3eo-1qtJ0ENQ3vf1oOc",
+  authDomain: "finceponlinetuitions.firebaseapp.com",
+  projectId: "finceponlinetuitions",
+  storageBucket: "finceponlinetuitions.appspot.com",
+  messagingSenderId: "562071475466",
+  appId: "1:562071475466:web:182cb7c22b64729dd16f3"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+const container = document.getElementById("tasksContainer");
+
+// Fetch tasks dynamically
+db.collection("tasks").orderBy("assignedDate","desc").get().then(snapshot=>{
+    if(snapshot.empty){
+        container.innerHTML = "<p>No tasks assigned yet.</p>";
+        return;
+    }
+
+    snapshot.forEach(doc=>{
+        const data = doc.data();
+        const taskDiv = document.createElement("div");
+        taskDiv.className = "task";
+        taskDiv.innerHTML = `
+            <h3>${data.title}</h3>
+            <p><strong>Date Assigned:</strong> ${data.assignedDate}</p>
+            <p><strong>Due Date:</strong> ${data.dueDate}</p>
+            <p><strong>Description:</strong> ${data.description}</p>
+            <iframe src="${data.link.replace("/view?usp=sharing","/preview")}"></iframe>
+            <a href="https://wa.me/260774177403?text=I%20have%20submitted%20${encodeURIComponent(data.title)}" target="_blank">
+                <button class="submit-btn">Submit To the Admin</button>
+            </a>
+        `;
+        container.appendChild(taskDiv);
+    });
+}).catch(err=>{
+    container.innerHTML = "<p style='color:red;'>Error fetching tasks: "+err+"</p>";
+});
+</script>
 
 </body>
 </html>
