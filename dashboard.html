@@ -6,6 +6,9 @@
 <title>Fincep Tuitions Dashboard</title>
 <meta name="theme-color" content="#0B3D91">
 
+<!-- Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
 <style>
 body {
     margin: 0;
@@ -72,7 +75,7 @@ body {
     border-right: 2px solid #87CEFA;
     transform: translateX(-100%);
     transition: transform 0.3s ease;
-    overflow-y: auto; /* make it scrollable on small screens */
+    overflow-y: auto;
 }
 
 .hamburger-menu.active {
@@ -92,6 +95,9 @@ body {
     color: #87CEFA;
     text-decoration: none;
     font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .hamburger-menu a:hover {
@@ -133,6 +139,38 @@ body {
     margin-top: 8px;
     font-size: 0.9em;
 }
+
+.nav-card i {
+    font-size: 32px;
+}
+
+/* WhatsApp Floating Button */
+.whatsapp-float {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 48px;
+    height: 48px;
+    background-color: #25D366;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    z-index: 1000;
+    transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.whatsapp-float:hover {
+    transform: scale(1.1);
+    background-color: #1ebe5d;
+}
+
+.whatsapp-float svg {
+    width: 24px;
+    height: 24px;
+    fill: white;
+}
 </style>
 </head>
 
@@ -142,10 +180,10 @@ body {
 
 <header class="dashboard-header">
     <div class="header-top-left">
-        <button id="menu-btn">&#9776;</button>
+        <button id="menu-btn"><i class="fas fa-bars"></i></button>
     </div>
     <div class="header-top-right">
-        <button id="logout-btn">&#10162;</button>
+        <button id="logout-btn"><i class="fas fa-sign-out-alt"></i></button>
     </div>
 
     <h2>Fincep Tuitions</h2>
@@ -153,47 +191,45 @@ body {
     <p class="welcome-msg">Welcome!</p>
 
     <nav id="hamburger-menu" class="hamburger-menu">
-        <!-- Image at the top of the menu -->
         <div style="text-align:center; margin-bottom: 20px;">
             <img src="fincep.jpg" alt="Logo" style="width: 100px; border-radius: 50%;">
         </div>
 
         <ul>
-            <li><a href="profile.html">Profile</a></li>
-            <li><a href="task.html">Task</a></li>
-            <li><a href="quizzes.html">Quizzes</a></li>
-            <li><a href="calculator.html">Calculator</a></li>
-            <li><a href="motivation.html">Motivation</a></li>
-            <li><a href="about.html">About Us</a></li>
+            <li><a href="profile.html"><i class="fas fa-user"></i> Profile</a></li>
+            <li><a href="task.html"><i class="fas fa-tasks"></i> Tasks</a></li>
+            
+            <li><a href="calculator.html"><i class="fas fa-calculator"></i> Calculator</a></li>
+            <li><a href="about.html"><i class="fas fa-info-circle"></i> About Us</a></li>
+            <li><a href="admin.html"><i class="fas fa-user-shield"></i> Admin</a></li>
         </ul>
     </nav>
 </header>
 
 <main class="dashboard-main">
     <div class="nav-grid">
-        <div class="nav-card" onclick="location.href='subject_selection.html'">
-            📺
+        <div class="nav-card" onclick="location.href='videos.html'">
+            <i class="fas fa-video"></i>
             <span>Videos</span>
         </div>
 
-        <div class="nav-card" onclick="location.href='subject_selection_docs.html'">
-            📄
+        <div class="nav-card" onclick="location.href='documents.html'">
+            <i class="fas fa-file-alt"></i>
             <span>Documents</span>
         </div>
 
         <div class="nav-card" onclick="location.href='pastpapers.html'">
-            📚
+            <i class="fas fa-book"></i>
             <span>Past Papers</span>
         </div>
 
         <div class="nav-card" onclick="location.href='task.html'">
-            📝
+            <i class="fas fa-tasks"></i>
             <span>Assignments</span>
         </div>
     </div>
 </main>
 
-<!-- Subscribe button at the very bottom -->
 <div style="text-align:center; padding: 15px;">
     <a href="syllabus.html">
         <button style="
@@ -240,17 +276,14 @@ document.getElementById('logout-btn').onclick = () => {
 const trialDaysElement = document.getElementById('trial-days');
 const welcomeElement = document.querySelector('.welcome-msg');
 
-// ---- USER NAME ----
 let userName = localStorage.getItem('userName');
 if (!userName) {
-    userName = "Guest"; // fallback
+    userName = "Guest";
     localStorage.setItem('userName', userName);
 }
 welcomeElement.textContent = `Welcome, ${userName}!`;
 
-// ---- TRIAL COUNTDOWN ----
-const trialPeriod = 30; // 30 days trial
-
+const trialPeriod = 30;
 let startDate = localStorage.getItem('trialStart');
 if (!startDate) {
     startDate = new Date().toISOString();
@@ -259,140 +292,19 @@ if (!startDate) {
 
 const start = new Date(startDate);
 const today = new Date();
-
 const diffTime = today - start;
 const diffDays = Math.ceil(trialPeriod - diffTime / (1000 * 60 * 60 * 24));
 
-if (diffDays > 0) {
-    trialDaysElement.textContent = `You're remaining with: ${diffDays} trial days`;
-} else {
-    trialDaysElement.textContent = "Trial expired";
-}
+trialDaysElement.textContent = diffDays > 0 
+    ? `You're remaining with: ${diffDays} trial days` 
+    : "Trial expired";
 </script>
-<style>
-/* WhatsApp Floating Button */
-<style>
-/* WhatsApp Floating Button */
-.whatsapp-float {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    width: 56px;
-    height: 56px;
-    background-color: #25D366;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-    z-index: 1000;
-    transition: transform 0.2s ease, background 0.2s ease;
-}
 
-.whatsapp-float:hover {
-    transform: scale(1.1);
-    background-color: #1ebe5d;
-}
-
-.whatsapp-float svg {
-    width: 28px;
-    height: 28px;
-    fill: white;
-}
-</style>
-
-<a href="https://chat.whatsapp.com/HL0hEWhZkyrBl3jihvCy9w"
-   class="whatsapp-float"
-   target="_blank"
-   aria-label="Join WhatsApp Group">
-
-    <!-- WhatsApp SVG Icon -->
-    <style>
-/* WhatsApp Floating Button */
-.whatsapp-float {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    width: 56px;
-    height: 56px;
-    background-color: #25D366;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-    z-index: 1000;
-    transition: transform 0.2s ease, background 0.2s ease;
-}
-
-.whatsapp-float:hover {
-    transform: scale(1.1);
-    background-color: #1ebe5d;
-}
-
-.whatsapp-float svg {
-    width: 28px;
-    height: 28px;
-    fill: white;
-}
-</style>
-
-
-
-
-<style>
-/* WhatsApp Floating Button */
-.whatsapp-float {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    width: 56px;
-    height: 56px;
-    background-color: #25D366;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-    z-index: 1000;
-    transition: transform 0.2s ease, background 0.2s ease;
-    font-weight: bold;
-    font-size: 12px;
-    color: white;
-    text-align: center;
-}
-
-.whatsapp-float:hover {
-    transform: scale(1.1);
-    background-color: #1ebe5d;
-}
-
-.whatsapp-float svg {
-    width: 28px;
-    height: 28px;
-    fill: white;
-    margin-bottom: 2px; /* make space for text */
-}
-
-/* Add text inside the button */
-.whatsapp-float span {
-    position: absolute;
-    bottom: 4px;
-    font-size: 10px;
-    font-weight: bold;
-    color: white;
-}
-</style>
-
-<a href="https://chat.whatsapp.com/HL0hEWhZkyrBl3jihvCy9w"
-   class="whatsapp-float"
-   target="_blank"
-   aria-label="Join WhatsApp Group">
-    <!-- WhatsApp SVG Icon -->
+<!-- WhatsApp Floating Button -->
+<a href="https://chat.whatsapp.com/HL0hEWhZkyrBl3jihvCy9w" class="whatsapp-float" target="_blank" aria-label="Join WhatsApp Group">
     <svg viewBox="0 0 32 32" aria-hidden="true">
         <path d="M16 0C7.164 0 0 6.94 0 15.5c0 2.73.73 5.41 2.11 7.77L0 32l9.07-2.38A16.33 16.33 0 0 0 16 31c8.836 0 16-6.94 16-15.5S24.836 0 16 0zm0 28.18c-2.47 0-4.89-.63-7.03-1.83l-.5-.29-5.38 1.41 1.44-5.12-.33-.52A12.62 12.62 0 0 1 3.82 15.5C3.82 8.95 9.32 3.82 16 3.82s12.18 5.13 12.18 11.68S22.68 28.18 16 28.18zm6.6-9.09c-.36-.18-2.14-1.04-2.47-1.16-.33-.12-.58-.18-.83.18-.25.36-.96 1.16-1.18 1.4-.22.24-.44.27-.8.09-.36-.18-1.53-.55-2.91-1.76-1.07-.93-1.79-2.08-2-2.44-.21-.36-.02-.56.16-.74.16-.16.36-.41.54-.61.18-.2.24-.34.36-.57.12-.24.06-.45-.03-.63-.09-.18-.83-1.98-1.14-2.71-.3-.72-.61-.62-.83-.63h-.71c-.24 0-.63.09-.96.45-.33.36-1.26 1.23-1.26 3 0 1.77 1.29 3.48 1.47 3.72.18.24 2.54 3.87 6.16 5.43.86.36 1.53.58 2.05.74.86.27 1.65.23 2.27.14.69-.1 2.14-.86 2.44-1.69.3-.83.3-1.54.21-1.69-.09-.15-.33-.24-.69-.42z"/>
     </svg>
-    <span>Group</span>
 </a>
 
 </body>
