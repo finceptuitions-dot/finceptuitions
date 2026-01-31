@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -59,7 +58,10 @@ let papersData = []; // all past papers
 
 // --- Load Papers ---
 db.collection("pastpapers").get().then(snapshot => {
-    papersData = snapshot.docs.map(doc => doc.data());
+    papersData = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+    }));
     showSubjects();
 }).catch(err => {
     container.innerHTML = "<p style='color:red;'>Error fetching papers: " + err + "</p>";
@@ -69,7 +71,13 @@ db.collection("pastpapers").get().then(snapshot => {
 function showSubjects(){
     container.innerHTML = "";
     backBtn.style.display = "none";
-    const subjects = [...new Set(papersData.map(p => p.subject))];
+    const subjects = [...new Set(papersData.map(p => p.subject))].sort();
+
+    if(subjects.length === 0){
+        container.innerHTML = "<p>No past papers uploaded yet.</p>";
+        return;
+    }
+
     subjects.forEach(sub => {
         const card = document.createElement("div");
         card.className = "card";
@@ -86,15 +94,25 @@ function showSubjects(){
 function showFiles(){
     container.innerHTML = "";
     backBtn.style.display = "inline-block";
-    const files = papersData.filter(p => p.subject === selectedSubject);
+
+    // Filter by subject
+    let files = papersData.filter(p => p.subject === selectedSubject);
+
     if(files.length === 0){
         container.innerHTML = "<p>No papers found for this subject.</p>";
         return;
     }
+
+    // Sort by order, push missing order to end
+    files = files.map(f => ({
+        ...f,
+        order: f.order || 999
+    })).sort((a,b) => a.order - b.order);
+
     files.forEach(f => {
         const card = document.createElement("div");
         card.className = "card";
-        card.textContent = f.title;
+        card.textContent = `${f.order !== 999 ? f.order + ". " : ""}${f.title}`;
         card.onclick = () => openViewer(f.link);
         container.appendChild(card);
     });
@@ -111,7 +129,6 @@ function goBack(){
 // --- Viewer ---
 function openViewer(link){
     document.getElementById("viewer").style.display = "flex";
-    // Google Drive PDF preview
     const idMatch = link.match(/[-\w]{25,}/);
     const id = idMatch ? idMatch[0] : null;
     if(id){
