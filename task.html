@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -19,38 +20,33 @@ body { font-family: Arial, sans-serif; background:#f0f8ff; padding:20px; margin:
     border:1px solid #0B3D91;
     padding:6px 12px;
     border-radius:6px;
-    transition: 0.2s;
 }
 .back-btn:hover { background:#0B3D91; color:white; }
 h2 { color:#0B3D91; text-align:center; margin-bottom:20px; }
 .task { background:#e6f2ff; padding:15px; margin-bottom:15px; border-radius:10px; }
 .task h3 { margin:0 0 5px 0; color:#0B3D91; }
-.task p { margin:3px 0; font-size:0.9em; }
+.task p { margin:4px 0; font-size:0.9em; }
 iframe { width:100%; height:300px; border:none; border-radius:6px; margin-top:10px; }
 .submit-btn {
     background-color:#25D366;
     color:white;
     border:none;
-    padding:10px 20px;
+    padding:10px;
     border-radius:6px;
     font-weight:bold;
     cursor:pointer;
     margin-top:10px;
     width:100%;
-    font-size:0.95em;
-    transition:0.2s;
 }
 .submit-btn:hover { background-color:#1DA851; }
 </style>
 </head>
+
 <body>
 
 <div class="container">
-    <!-- Back button -->
     <a href="dashboard.html" class="back-btn">&#8592; Back</a>
-
     <h2>Your Tasks</h2>
-
     <div id="tasksContainer"></div>
 </div>
 
@@ -58,45 +54,64 @@ iframe { width:100%; height:300px; border:none; border-radius:6px; margin-top:10
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
-// Firebase Config (replace with your own)
 const firebaseConfig = {
   apiKey: "AIzaSyCBFObaNdHuPDVM3eo-1qtJ0ENQ3vf1oOc",
   authDomain: "finceponlinetuitions.firebaseapp.com",
   projectId: "finceponlinetuitions",
   storageBucket: "finceponlinetuitions.appspot.com",
   messagingSenderId: "562071475466",
-  appId: "1:562071475466:web:182cb7c22b64729dd16f3"
+  appId: "1:562071475466:web:1823cb7c22b64729dd16f3"
 };
+
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
 const container = document.getElementById("tasksContainer");
 
-// Fetch tasks dynamically
-db.collection("tasks").orderBy("assignedDate","desc").get().then(snapshot=>{
-    if(snapshot.empty){
+db.collection("tasks").get()
+.then(snapshot => {
+
+    if (snapshot.empty) {
         container.innerHTML = "<p>No tasks assigned yet.</p>";
         return;
     }
 
-    snapshot.forEach(doc=>{
+    snapshot.forEach(doc => {
         const data = doc.data();
+
+        const assignedDate = data.assignedDate?.toDate
+            ? data.assignedDate.toDate().toDateString()
+            : "N/A";
+
+        const dueDate = data.dueDate?.toDate
+            ? data.dueDate.toDate().toDateString()
+            : "N/A";
+
         const taskDiv = document.createElement("div");
         taskDiv.className = "task";
+
         taskDiv.innerHTML = `
-            <h3>${data.title}</h3>
-            <p><strong>Date Assigned:</strong> ${data.assignedDate}</p>
-            <p><strong>Due Date:</strong> ${data.dueDate}</p>
-            <p><strong>Description:</strong> ${data.description}</p>
-            <iframe src="${data.link.replace("/view?usp=sharing","/preview")}"></iframe>
-            <a href="https://wa.me/260774177403?text=I%20have%20submitted%20${encodeURIComponent(data.title)}" target="_blank">
+            <h3>${data.title || "Untitled Task"}</h3>
+            <p><strong>Date Assigned:</strong> ${assignedDate}</p>
+            <p><strong>Due Date:</strong> ${dueDate}</p>
+            <p><strong>Description:</strong> ${data.description || ""}</p>
+
+            ${data.link ? `
+                <iframe src="${data.link.replace("/view?usp=sharing","/preview")}"></iframe>
+            ` : ""}
+
+            <a href="https://wa.me/260774177403?text=I%20have%20submitted%20${encodeURIComponent(data.title || "a task")}" target="_blank">
                 <button class="submit-btn">Submit To the Admin</button>
             </a>
         `;
+
         container.appendChild(taskDiv);
     });
-}).catch(err=>{
-    container.innerHTML = "<p style='color:red;'>Error fetching tasks: "+err+"</p>";
+
+})
+.catch(error => {
+    console.error(error);
+    container.innerHTML = "<p style='color:red;'>Error fetching tasks.</p>";
 });
 </script>
 
