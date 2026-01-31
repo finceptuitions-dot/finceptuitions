@@ -8,7 +8,7 @@
 body { font-family: Arial, sans-serif; margin:0; background:#f0f8ff; }
 header { background:#0B3D91; color:white; padding:15px 20px; display:flex; align-items:center; box-shadow:0 2px 6px rgba(0,0,0,0.2); position:relative; }
 header h1 { margin:0; font-size:1.5em; flex-grow:1; text-align:center; }
-.back-btn { position:absolute; left:15px; background:none; border:none; font-size:24px; cursor:pointer; color:white; }
+.back-btn { position:absolute; left:15px; background:none; border:none; font-size:24px; cursor:pointer; color:white; display:none; }
 
 .container { max-width:900px; margin:20px auto; display:grid; grid-template-columns:1fr 1fr; gap:15px; padding:0 10px; }
 
@@ -29,7 +29,6 @@ header h1 { margin:0; font-size:1.5em; flex-grow:1; text-align:center; }
 
 <div id="mainContainer" class="container"></div>
 
-<!-- Full screen viewer -->
 <div id="viewer">
   <button onclick="closeViewer()">&times;</button>
   <iframe id="paperFrame"></iframe>
@@ -51,89 +50,78 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
+// --- Variables ---
 let selectedSubject = null;
-let selectedYear = null;
+const container = document.getElementById("mainContainer");
+const backBtn = document.querySelector(".back-btn");
 let papersData = []; // all past papers
 
-const container = document.getElementById("mainContainer");
-
-// Step: Show Subjects first
-const subjects = ["Math","English","Physics","Chemistry","Biology","Economics"];
-const years = ["2026","2025","2024","2023","2022"]; // you can expand
-
-function showSubjects(){
-  container.innerHTML = "";
-  subjects.forEach(sub => {
-    const card = document.createElement("div");
-    card.className = "card";
-    card.textContent = sub;
-    card.onclick = () => {
-      selectedSubject = sub;
-      showYears();
-    };
-    container.appendChild(card);
-  });
-}
-
-function showYears(){
-  container.innerHTML = "";
-  // collect years available for selected subject
-  let subjectPapers = papersData.filter(p => p.subject === selectedSubject);
-  let availableYears = [...new Set(subjectPapers.map(p => p.year))].sort((a,b)=>b-a); // descending
-
-  availableYears.forEach(yr => {
-    const card = document.createElement("div");
-    card.className = "card";
-    card.textContent = yr;
-    card.onclick = () => {
-      selectedYear = yr;
-      showFiles();
-    };
-    container.appendChild(card);
-  });
-}
-
-function showFiles(){
-  container.innerHTML = "";
-  let files = papersData.filter(p => p.subject === selectedSubject && p.year === selectedYear);
-  if(files.length === 0){
-    container.innerHTML = "<p>No papers found.</p>";
-    return;
-  }
-
-  files.forEach(f => {
-    const card = document.createElement("div");
-    card.className = "card";
-    card.textContent = f.title;
-    card.onclick = () => openViewer(f.link);
-    container.appendChild(card);
-  });
-}
-
-// Fetch all papers once
-db.collection("past papers").get().then(snapshot=>{
-  papersData = [];
-  snapshot.forEach(doc => papersData.push(doc.data()));
-  showSubjects();
+// --- Load Papers ---
+db.collection("pastpapers").get().then(snapshot => {
+    papersData = snapshot.docs.map(doc => doc.data());
+    showSubjects();
 }).catch(err => {
-  container.innerHTML = "<p style='color:red;'>Error fetching papers: "+err+"</p>";
+    container.innerHTML = "<p style='color:red;'>Error fetching papers: " + err + "</p>";
 });
 
-// Back button logic
-function goBack(){
-  if(selectedYear){ selectedYear=null; showYears(); }
-  else if(selectedSubject){ selectedSubject=null; showSubjects(); }
-  else { history.back(); }
+// --- Show Subjects ---
+function showSubjects(){
+    container.innerHTML = "";
+    backBtn.style.display = "none";
+    const subjects = [...new Set(papersData.map(p => p.subject))];
+    subjects.forEach(sub => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.textContent = sub;
+        card.onclick = () => {
+            selectedSubject = sub;
+            showFiles();
+        };
+        container.appendChild(card);
+    });
 }
 
-// Viewer
+// --- Show Files ---
+function showFiles(){
+    container.innerHTML = "";
+    backBtn.style.display = "inline-block";
+    const files = papersData.filter(p => p.subject === selectedSubject);
+    if(files.length === 0){
+        container.innerHTML = "<p>No papers found for this subject.</p>";
+        return;
+    }
+    files.forEach(f => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.textContent = f.title;
+        card.onclick = () => openViewer(f.link);
+        container.appendChild(card);
+    });
+}
+
+// --- Back button ---
+function goBack(){
+    if(selectedSubject){
+        selectedSubject = null;
+        showSubjects();
+    }
+}
+
+// --- Viewer ---
 function openViewer(link){
-  document.getElementById("viewer").style.display = "flex";
-  document.getElementById("paperFrame").src = link.replace("/view?usp=sharing","/preview");
+    document.getElementById("viewer").style.display = "flex";
+    // Google Drive PDF preview
+    const idMatch = link.match(/[-\w]{25,}/);
+    const id = idMatch ? idMatch[0] : null;
+    if(id){
+        document.getElementById("paperFrame").src = `https://drive.google.com/file/d/${id}/preview`;
+    } else {
+        document.getElementById("paperFrame").src = link;
+    }
 }
 function closeViewer(){
-  document.getElementById("viewer").style.display = "none";
-  document.getElementById("paperFrame").src = "";
+    document.getElementById("viewer").style.display = "none";
+    document.getElementById("paperFrame").src = "";
 }
 </script>
 
