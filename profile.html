@@ -3,9 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Profile - Finceptuitions</title>
-<link rel="stylesheet" href="style.css">
-<link rel="manifest" href="manifest.json">
+<title>Profile - Fincep Tuitions</title>
 <meta name="theme-color" content="#2575fc">
 <style>
 body {
@@ -54,6 +52,18 @@ header {
 .back-btn:hover {
     background-color: #334155;
 }
+
+/* Circle progress */
+.circle-progress-container {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+}
+svg circle {
+    transition: stroke-dashoffset 0.5s;
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
+}
 </style>
 </head>
 <body>
@@ -70,74 +80,142 @@ header {
         <p><strong>Name:</strong> <span id="profile-name">Loading...</span></p>
         <p><strong>Email:</strong> <span id="profile-email">Loading...</span></p>
         <p><strong>Member since:</strong> <span id="profile-since">Loading...</span></p>
+        <p><strong>Trial Days:</strong> <span id="trial-days">Loading...</span></p>
+    </div>
+
+    <div class="section">
+        <h2>Overall Progress</h2>
+        <div class="circle-progress-container">
+            <svg width="180" height="180">
+                <circle cx="90" cy="90" r="80" stroke="#e0e0e0" stroke-width="15" fill="none"/>
+                <!-- Colored arcs -->
+                <circle id="circle-videos" cx="90" cy="90" r="80" stroke="#FF6384" stroke-width="15" fill="none"
+                        stroke-dasharray="502.65" stroke-dashoffset="502.65" stroke-linecap="round"/>
+                <circle id="circle-tasks" cx="90" cy="90" r="80" stroke="#36A2EB" stroke-width="15" fill="none"
+                        stroke-dasharray="502.65" stroke-dashoffset="502.65" stroke-linecap="round"/>
+                <circle id="circle-docs" cx="90" cy="90" r="80" stroke="#FFCE56" stroke-width="15" fill="none"
+                        stroke-dasharray="502.65" stroke-dashoffset="502.65" stroke-linecap="round"/>
+                <circle id="circle-papers" cx="90" cy="90" r="80" stroke="#4BC0C0" stroke-width="15" fill="none"
+                        stroke-dasharray="502.65" stroke-dashoffset="502.65" stroke-linecap="round"/>
+                <text x="90" y="100" text-anchor="middle" font-size="28" fill="#1e3a8a" id="progress-text">0%</text>
+            </svg>
+        </div>
+        <p style="text-align:center; font-size:0.9em; color:#555;">
+            <span style="color:#FF6384">Videos</span> |
+            <span style="color:#36A2EB">Tasks</span> |
+            <span style="color:#FFCE56">Docs</span> |
+            <span style="color:#4BC0C0">Papers</span>
+        </p>
     </div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
-import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+import { getFirestore, doc, onSnapshot, Timestamp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
-// Firebase config (corrected storageBucket)
 const firebaseConfig = {
-  apiKey: "AIzaSyC6gaEIKoeZmSRwVVJOrkQtk7SW_iiqz04",
-  authDomain: "secondary-school-center.firebaseapp.com",
-  projectId: "secondary-school-center",
-  storageBucket: "secondary-school-center.appspot.com",
-  messagingSenderId: "156434969933",
-  appId: "1:156434969933:web:796b926798647d1ada3304",
-  measurementId: "G-G70CP4W5F8"
+  apiKey: "AIzaSyCBFObaNdHuPDVM3eo-1qtJ0ENQ3vf1oOc",
+  authDomain: "finceponlinetuitions.firebaseapp.com",
+  projectId: "finceponlinetuitions",
+  storageBucket: "finceponlinetuitions.appspot.com",
+  messagingSenderId: "562071475466",
+  appId: "1:562071475466:web:1823cb7c22b64729dd16f3"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// HTML elements
 const nameEl = document.getElementById('profile-name');
 const emailEl = document.getElementById('profile-email');
 const sinceEl = document.getElementById('profile-since');
+const trialEl = document.getElementById('trial-days');
 
-onAuthStateChanged(auth, (user) => {
-    console.log("Current user:", user); // Debug
+const circleVideos = document.getElementById('circle-videos');
+const circleTasks = document.getElementById('circle-tasks');
+const circleDocs = document.getElementById('circle-docs');
+const circlePapers = document.getElementById('circle-papers');
+const progressText = document.getElementById('progress-text');
 
-    if (!user) {
-        // User not signed in
-        nameEl.textContent = "Not signed in";
-        emailEl.textContent = "-";
-        sinceEl.textContent = "-";
-        return;
-    }
+const circumference = 2 * Math.PI * 80;
 
-    // User is signed in, fetch data from Firestore in real-time
-    const docRef = doc(db, "users", user.uid);
-    onSnapshot(docRef, (docSnap) => {
-        if (docSnap.exists()) {
-            const data = docSnap.data();
-            nameEl.textContent = data.name || "No name";
-            emailEl.textContent = data.email || user.email || "No email";
-            sinceEl.textContent = data.memberSince || "Unknown";
+function setCircle(circle, percent){
+    const offset = circumference - (percent/100)*circumference;
+    circle.style.strokeDashoffset = offset;
+}
+
+// Format timestamp
+function formatDate(date){
+    return (date instanceof Timestamp ? date.toDate() : new Date(date)).toLocaleDateString();
+}
+
+// Trial countdown
+let trialInterval = null;
+function startTrialCountdown(trialStart, trialDays){
+    if(trialInterval) clearInterval(trialInterval);
+    const startDate = trialStart instanceof Timestamp ? trialStart.toDate() : new Date(trialStart);
+
+    trialInterval = setInterval(()=>{
+        const now = new Date();
+        const diff = Math.floor((now - startDate)/(1000*60*60*24));
+        const remaining = trialDays - diff;
+
+        if(remaining <= 0){
+            trialEl.textContent = "Trial expired!";
+            alert("Your trial has expired! Logging out...");
+            clearInterval(trialInterval);
+            signOut(auth);
         } else {
-            nameEl.textContent = "User data not found";
-            emailEl.textContent = "-";
-            sinceEl.textContent = "-";
+            trialEl.textContent = remaining + " day(s) remaining";
         }
-    }, (error) => {
-        console.error("Error fetching user data:", error);
-        nameEl.textContent = "Error loading profile";
-        emailEl.textContent = "-";
-        sinceEl.textContent = "-";
+    }, 1000);
+}
+
+// Auth listener
+onAuthStateChanged(auth, user=>{
+    if(!user) window.location.replace("login.html");
+
+    const userRef = doc(db,"users",user.uid);
+    onSnapshot(userRef, snap=>{
+        if(!snap.exists()){
+            nameEl.textContent="User data not found";
+            emailEl.textContent="-";
+            sinceEl.textContent="-";
+            trialEl.textContent="-";
+            progressText.textContent="0%";
+            return;
+        }
+
+        const d = snap.data();
+
+        nameEl.textContent = d.name || "No name";
+        emailEl.textContent = d.email || user.email;
+        sinceEl.textContent = d.createdAt ? formatDate(d.createdAt) : "Unknown";
+
+        // Start trial
+        if(d.trialStart && d.trialDays) startTrialCountdown(d.trialStart, d.trialDays);
+        else trialEl.textContent="-";
+
+        // Calculate progress percentages
+        const videosPercent = d.totalVideos ? (d.videosWatched||0)/d.totalVideos*100 : 0;
+        const tasksPercent = d.totalTasks ? (d.tasksCompleted||0)/d.totalTasks*100 : 0;
+        const docsPercent = d.totalDocuments ? (d.documentsOpened||0)/d.totalDocuments*100 : 0;
+        const papersPercent = d.totalPapers ? (d.papersRead||0)/d.totalPapers*100 : 0;
+
+        // Set colored arcs
+        setCircle(circleVideos, videosPercent);
+        setCircle(circleTasks, tasksPercent);
+        setCircle(circleDocs, docsPercent);
+        setCircle(circlePapers, papersPercent);
+
+        // Overall weighted progress
+        const overall = Math.round(
+            (videosPercent*0.4)+(tasksPercent*0.3)+(docsPercent*0.2)+(papersPercent*0.1)
+        );
+        progressText.textContent = overall + "%";
     });
 });
 </script>
-
-<script>
-if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("sw.js")
-    .then(() => console.log("Service Worker registered"))
-    .catch((err) => console.log("SW registration failed:", err));
-}
-</script>
-
 </body>
 </html>
