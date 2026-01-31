@@ -166,6 +166,12 @@ function loadSubjects(){
 
     db.collection("documents").get().then(snapshot=>{
         const subjects = [...new Set(snapshot.docs.map(d => d.data().subject))];
+        subjects.sort(); // optional: alphabetical
+
+        if(subjects.length === 0){
+            content.innerHTML = "<p>No documents uploaded yet.</p>";
+            return;
+        }
 
         subjects.forEach(subject=>{
             const btn = document.createElement("button");
@@ -190,18 +196,30 @@ function loadFiles(){
       .get()
       .then(snapshot=>{
         if(snapshot.empty){
-            content.innerHTML = "<p>No documents found</p>";
+            content.innerHTML = "<p>No documents found for this subject</p>";
             return;
         }
 
-        snapshot.forEach(doc=>{
+        // Sort by order, push missing order to end
+        const files = snapshot.docs.map(doc=>{
             const data = doc.data();
+            return {
+                id: doc.id,
+                title: data.title,
+                link: data.link,
+                order: data.order || 999
+            };
+        });
+
+        files.sort((a,b)=>a.order - b.order);
+
+        files.forEach(file=>{
             const card = document.createElement("div");
             card.className = "file-card";
-            card.textContent = data.title;
+            card.textContent = `${file.order !== 999 ? file.order + ". " : ""}${file.title}`;
 
             card.onclick = () => {
-                const id = extractDriveId(data.link);
+                const id = extractDriveId(file.link);
                 if(id){
                     previewIframe.src = `https://drive.google.com/file/d/${id}/preview`;
                     previewContainer.style.display = "block";
