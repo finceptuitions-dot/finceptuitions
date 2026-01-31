@@ -3,164 +3,249 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin - Fincep Tuitions</title>
-<meta name="theme-color" content="#0B3D91">
+<title>Admin - User Management</title>
+<meta name="theme-color" content="#2575fc">
+
 <style>
-body { font-family: Arial, sans-serif; background:#f0f8ff; margin:0; padding:20px; }
-.container { max-width:600px; margin:auto; background:white; padding:20px; border-radius:12px; box-shadow:0 3px 10px rgba(0,0,0,0.2); }
-h2 { text-align:center; color:#0B3D91; }
-input, select { width:100%; padding:10px; margin:8px 0; border-radius:6px; border:1px solid #ccc; }
-button { background:#0B3D91; color:white; border:none; padding:10px; border-radius:6px; cursor:pointer; font-weight:bold; width:100%; transition:0.2s; }
-button:hover { background:#0951b0; }
-.hidden { display:none; }
+body { margin:0; font-family: Arial, sans-serif; background:#f5f7fa; color:#111; }
+header { 
+    background:#1e3a8a; 
+    color:white; 
+    padding:15px 20px; 
+    text-align:center; 
+    font-size:1.4em; 
+    font-weight:bold; 
+    position: relative; 
+}
+header #dashboard-btn {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 5px 12px;
+    font-size: 0.9em;
+    background: #ff9800;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    display: none; 
+}
+header #dashboard-btn:hover { background: #e68900; }
+
+.container { max-width:1000px; margin:20px auto; padding:0 10px; }
+h2 { text-align:center; color:#1e3a8a; }
+table { width:100%; border-collapse:collapse; margin-top:15px; }
+th, td { border:1px solid #ccc; padding:8px; text-align:left; }
+th { background:#1e3a8a; color:white; }
+tr:nth-child(even) { background:#f9f9f9; }
+tr:hover { background:#eee; }
+button { padding:5px 10px; margin:2px; border:none; border-radius:4px; cursor:pointer; font-size:0.85em; }
+button.enable { background:#0bb40b; color:white; }
+button.disable { background:#d01a0b; color:white; }
+
+form { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:15px; background:white; padding:15px; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.15); }
+form input { flex:1; padding:8px; border-radius:6px; border:1px solid #ccc; }
+form button { flex:none; background:#1e3a8a; color:white; }
+
+#security-section { max-width:400px; margin:50px auto; padding:20px; background:white; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.15); text-align:center; }
+#security-section input { padding:8px; border-radius:6px; border:1px solid #ccc; width:70%; margin-bottom:10px; }
+#security-section button { background:#1e3a8a; color:white; padding:8px 12px; border:none; border-radius:6px; cursor:pointer; }
+#edit-code-section { display:none; margin-top:10px; }
+#edit-code-section input { width:60%; }
 </style>
 </head>
 <body>
 
-<div class="container" id="codeContainer">
-  <h2>Enter Admin Code</h2>
-  <input type="password" id="adminCode" placeholder="Enter your code">
-  <button onclick="checkCode()">Enter</button>
+<header>
+   Users
+   <button id="dashboard-btn">Files</button>
+</header>
+
+<div id="security-section">
+    <h2>Enter Security Code</h2>
+    <input type="password" id="security-input" placeholder="Security Code">
+    <br>
+    <button id="security-btn">Submit</button>
+
+    <div id="edit-code-section">
+        <input type="password" id="new-code" placeholder="New Code">
+        <button id="update-code-btn">Update Code</button>
+    </div>
 </div>
 
-<div class="container hidden" id="adminContainer">
-  <h2>Upload Content</h2>
-  <label>Type</label>
-  <select id="typeSelect" onchange="typeChanged()">
-    <option value="">--Select Type--</option>
-    <option value="Document">Document</option>
-    <option value="Video">Video</option>
-    <option value="PastPaper">Past Paper</option>
-    <option value="Task">Task</option>
-  </select>
+<div id="admin-content" style="display:none;">
+    <div class="container">
+        <h2>Create User</h2>
+        <form id="create-user-form">
+            <input type="text" id="name" placeholder="Full Name" required>
+            <input type="email" id="email" placeholder="Email" required>
+            <input type="text" id="whatsapp" placeholder="WhatsApp Number" required>
+            <input type="password" id="password" placeholder="Password" required>
+            <input type="number" id="trial-days" placeholder="Trial Days" value="7" required>
+            <button type="submit">Create User</button>
+        </form>
 
-  <!-- Dynamic Fields -->
-  <div id="dynamicFields"></div>
-
-  <button onclick="saveData()">Save</button>
+        <h2>Existing Users</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>WhatsApp</th>
+                    <th>Signed Up</th>
+                    <th>Trial Days Remaining</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="users-body"></tbody>
+        </table>
+    </div>
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+import { getFirestore, collection, doc, setDoc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+import { getAuth, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
 
-<script>
-// Firebase Config
 const firebaseConfig = {
-  apiKey: "AIzaSyCBFObaNdHuPDVM3eo-1qtJ0ENQ3vf1oOc",
-  authDomain: "finceponlinetuitions.firebaseapp.com",
-  projectId: "finceponlinetuitions",
-  storageBucket: "finceponlinetuitions.appspot.com",
-  messagingSenderId: "562071475466",
-  appId: "1:562071475466:web:182cb7c22b64729dd16f3"
+    apiKey: "AIzaSyCBFObaNdHuPDVM3eo-1qtJ0ENQ3vf1oOc",
+    authDomain: "finceponlinetuitions.firebaseapp.com",
+    projectId: "finceponlinetuitions",
+    storageBucket: "finceponlinetuitions.appspot.com",
+    messagingSenderId: "562071475466",
+    appId: "1:562071475466:web:1823cb7c22b64729dd16f3"
 };
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
 
-// Security Code
-const ADMIN_CODE = "1234"; // replace with your code
-function checkCode(){
-  const code = document.getElementById("adminCode").value;
-  if(code === ADMIN_CODE){
-    document.getElementById("codeContainer").classList.add("hidden");
-    document.getElementById("adminContainer").classList.remove("hidden");
-  } else { alert("Incorrect code"); }
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const usersBody = document.getElementById("users-body");
+const adminContent = document.getElementById("admin-content");
+const securitySection = document.getElementById("security-section");
+const securityInput = document.getElementById("security-input");
+const securityBtn = document.getElementById("security-btn");
+const editCodeSection = document.getElementById("edit-code-section");
+const newCodeInput = document.getElementById("new-code");
+const updateCodeBtn = document.getElementById("update-code-btn");
+const dashboardBtn = document.getElementById("dashboard-btn");
+
+let securityCode = "1234"; 
+let currentUserEmail = null;
+
+// --- Wait for user login ---
+onAuthStateChanged(auth, (user)=>{
+    if(user){
+        currentUserEmail = user.email;
+    } else {
+        alert("You must be logged in to access admin panel.");
+        window.location.href = "login.html"; 
+    }
+});
+
+// --- Security Code ---
+securityBtn.addEventListener("click", ()=>{
+    const inputCode = securityInput.value;
+    if(inputCode === securityCode){
+        securitySection.style.display = "none";
+        adminContent.style.display = "block";
+        dashboardBtn.style.display = "inline-block";
+        if(currentUserEmail === "enockkaunda390@gmail.com"){
+            editCodeSection.style.display = "block";
+        }
+    } else {
+        alert("Incorrect Security Code!");
+    }
+});
+
+updateCodeBtn.addEventListener("click", ()=>{
+    const newCode = newCodeInput.value.trim();
+    if(newCode.length > 0){
+        securityCode = newCode;
+        alert("Security code updated!");
+        newCodeInput.value = "";
+    }
+});
+
+// ---- Real-time Load Users ----
+function loadUsers() {
+    onSnapshot(collection(db, "users"), snapshot => {
+        usersBody.innerHTML = "";
+        snapshot.forEach(docSnap => {
+            const user = docSnap.data();
+            const signupDate = user.createdAt ? new Date(user.createdAt.seconds*1000) : new Date();
+            const today = new Date();
+            const trialDays = user.trialDays || 7;
+            const usedDays = Math.floor((today - signupDate)/(1000*60*60*24));
+            const remainingDays = trialDays - usedDays;
+
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td>${user.name}</td>
+                <td>${user.email}</td>
+                <td>${user.whatsapp || ""}</td>
+                <td>${signupDate.toLocaleDateString()}</td>
+                <td>${remainingDays > 0 ? remainingDays : 0}</td>
+                <td>${user.disabled ? "Disabled" : "Active"}</td>
+                <td>
+                    <button class="${user.disabled ? 'enable' : 'disable'}" onclick="toggleUser('${docSnap.id}', ${user.disabled})">
+                        ${user.disabled ? 'Enable' : 'Disable'}
+                    </button>
+                    <button onclick="editUser('${docSnap.id}', '${user.name}', '${user.email}', '${user.whatsapp}', ${user.trialDays})">Edit</button>
+                </td>
+            `;
+            usersBody.appendChild(tr);
+        });
+    });
 }
 
-// Dynamic fields
-const dynamicFields = document.getElementById("dynamicFields");
+// ---- Create User ----
+document.getElementById("create-user-form").addEventListener("submit", async e=>{
+    e.preventDefault();
+    const name = document.getElementById("name").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const whatsapp = document.getElementById("whatsapp").value.trim();
+    const password = document.getElementById("password").value;
+    const trialDays = parseInt(document.getElementById("trial-days").value);
 
-function typeChanged(){
-  const type = document.getElementById("typeSelect").value;
-  dynamicFields.innerHTML = ""; // clear previous fields
+    try{
+        const cred = await createUserWithEmailAndPassword(auth, email, password);
+        await setDoc(doc(db, "users", cred.user.uid), {
+            name, email, whatsapp, disabled:false, createdAt:new Date(), trialDays
+        });
+        alert(`User ${name} created successfully!`);
+        document.getElementById("create-user-form").reset();
+    }catch(err){
+        alert("Error: "+err.message);
+    }
+});
 
-  if(type==="Document" || type==="Video"){
-    dynamicFields.innerHTML = `
-      <label>Subject</label>
-      <input type="text" id="subject">
-      <label>Grade</label>
-      <select id="grade">
-        <option value="">--Select Grade--</option>
-        <option>10</option>
-        <option>11</option>
-        <option>12</option>
-      </select>
-      <label>Term</label>
-      <select id="term">
-        <option value="">--Select Term--</option>
-        <option>1</option>
-        <option>2</option>
-        <option>3</option>
-      </select>
-      <label>Title</label>
-      <input type="text" id="title" placeholder="Enter Title">
-      <label>Google Drive Link</label>
-      <input type="text" id="link" placeholder="Enter Link">`;
-  } 
-  else if(type==="PastPaper"){
-    dynamicFields.innerHTML = `
-      <label>Subject</label>
-      <input type="text" id="subject">
-      <label>Year</label>
-      <input type="text" id="year" placeholder="2026">
-      <label>Title</label>
-      <input type="text" id="title" placeholder="Enter Title">
-      <label>Google Drive Link</label>
-      <input type="text" id="link" placeholder="Enter Link">`;
-  } 
-  else if(type==="Task"){
-    dynamicFields.innerHTML = `
-      <label>Title</label>
-      <input type="text" id="title" placeholder="Enter Task Title">
-      <label>Description</label>
-      <input type="text" id="description" placeholder="Enter Description">
-      <label>Assigned Date</label>
-      <input type="date" id="assignedDate">
-      <label>Due Date</label>
-      <input type="date" id="dueDate">
-      <label>Google Drive Link</label>
-      <input type="text" id="link" placeholder="Enter Link">`;
-  }
-}
+// ---- Enable / Disable User ----
+window.toggleUser = async (uid, currentState)=>{
+    await updateDoc(doc(db, "users", uid), {disabled:!currentState});
+};
 
-// Save Data
-function saveData(){
-  const type = document.getElementById("typeSelect").value;
-  if(!type){ alert("Select type"); return; }
+// ---- Edit User ----
+window.editUser = (uid, name, email, whatsapp, trialDays)=>{
+    const newName = prompt("Name:", name) || name;
+    const newEmail = prompt("Email:", email) || email;
+    const newWhatsapp = prompt("WhatsApp Number:", whatsapp) || whatsapp;
+    const newTrial = parseInt(prompt("Trial Days:", trialDays)) || trialDays;
 
-  let data = {};
-  if(type==="Document" || type==="Video"){
-    const subject = document.getElementById("subject").value;
-    const grade = document.getElementById("grade").value;
-    const term = document.getElementById("term").value;
-    const title = document.getElementById("title").value;
-    const link = document.getElementById("link").value;
-    if(!subject||!grade||!term||!title||!link){ alert("Fill all fields"); return; }
-    data = {type, subject, grade, term, title, link};
-  } 
-  else if(type==="PastPaper"){
-    const subject = document.getElementById("subject").value;
-    const year = document.getElementById("year").value;
-    const title = document.getElementById("title").value;
-    const link = document.getElementById("link").value;
-    if(!subject||!year||!title||!link){ alert("Fill all fields"); return; }
-    data = {type, subject, year, title, link};
-  } 
-  else if(type==="Task"){
-    const title = document.getElementById("title").value;
-    const description = document.getElementById("description").value;
-    const assignedDate = document.getElementById("assignedDate").value;
-    const dueDate = document.getElementById("dueDate").value;
-    const link = document.getElementById("link").value;
-    if(!title||!description||!assignedDate||!dueDate||!link){ alert("Fill all fields"); return; }
-    data = {type, title, description, assignedDate, dueDate, link};
-  }
+    updateDoc(doc(db, "users", uid), {name:newName, email:newEmail, whatsapp:newWhatsapp, trialDays:newTrial});
+};
 
-  // Save to Firestore
-  let collectionName = type==="Task" ? "tasks" : type==="PastPaper" ? "past papers" : type==="Document" ? "documents" : "videos";
-  db.collection(collectionName).add(data)
-    .then(()=> { alert("Uploaded successfully!"); dynamicFields.innerHTML=""; document.getElementById("typeSelect").value=""; })
-    .catch(err=> { alert("Error: "+err); });
-}
+// ---- Redirect to Dashboard ----
+dashboardBtn.addEventListener("click", ()=>{
+    window.location.href = "file.html";
+});
+
+// ---- Initial Load ----
+loadUsers();
 </script>
+
 </body>
 </html>
