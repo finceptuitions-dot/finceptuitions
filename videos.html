@@ -148,6 +148,8 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
 let selectedSubject = null;
+let selectedGrade = null;
+let selectedMainTopic = null;
 
 const content = document.getElementById("content");
 const backBtn = document.getElementById("backBtn");
@@ -161,8 +163,16 @@ closePreview.onclick = () => {
 };
 
 backBtn.onclick = () => {
-    selectedSubject = null;
-    loadSubjects();
+    if(selectedMainTopic){
+        selectedMainTopic = null;
+        loadVideos();
+    } else if(selectedGrade){
+        selectedGrade = null;
+        loadVideos();
+    } else {
+        selectedSubject = null;
+        loadSubjects();
+    }
 };
 
 // ---- SUBJECTS ----
@@ -172,7 +182,7 @@ function loadSubjects(){
 
     db.collection("videos").get().then(snapshot=>{
         const subjects = [...new Set(snapshot.docs.map(d => d.data().subject))];
-        subjects.sort(); // Optional: alphabetical
+        subjects.sort();
 
         if(subjects.length === 0){
             content.innerHTML = "<p>No videos uploaded yet.</p>";
@@ -206,26 +216,149 @@ function loadVideos(){
             return;
         }
 
-        // Sort by order
-        const videos = snapshot.docs.map(doc => {
-            const data = doc.data();
-            return {
-                id: doc.id,
-                title: data.title,
-                link: data.link,
-                order: data.order || 999
-            };
-        });
+        if(selectedSubject === "BIOLOGY"){
+            // --- Biology: Grades → Main Topics → Videos ---
+            const grades = [...new Set(snapshot.docs.map(d => d.data().grade))].filter(g=>g).sort();
+            if(!selectedGrade){
+                grades.forEach(grade=>{
+                    const btn = document.createElement("button");
+                    btn.className = "button";
+                    btn.textContent = "Grade " + grade;
+                    btn.onclick = () => {
+                        selectedGrade = grade;
+                        loadVideos();
+                    };
+                    content.appendChild(btn);
+                });
 
-        videos.sort((a,b)=>a.order - b.order);
+                const allBtn = document.createElement("button");
+                allBtn.className = "button";
+                allBtn.textContent = "All Grades";
+                allBtn.onclick = () => {
+                    selectedGrade = ""; 
+                    loadVideos();
+                };
+                content.appendChild(allBtn);
+                return;
+            }
 
-        videos.forEach(video=>{
-            const card = document.createElement("div");
-            card.className = "file-card";
-            card.textContent = `${video.order !== 999 ? video.order + ". " : ""}${video.title}`;
-            card.onclick = () => openVideo(video.link);
-            content.appendChild(card);
-        });
+            const mainTopics = [...new Set(snapshot.docs
+                .filter(d=>selectedGrade==="" || d.data().grade==selectedGrade)
+                .map(d => d.data().mainTopic || ""))].filter(t=>t).sort();
+
+            if(!selectedMainTopic && mainTopics.length>0){
+                mainTopics.forEach(topic=>{
+                    const btn = document.createElement("button");
+                    btn.className = "button";
+                    btn.textContent = topic;
+                    btn.onclick = () => {
+                        selectedMainTopic = topic;
+                        loadVideos();
+                    };
+                    content.appendChild(btn);
+                });
+
+                const allBtn = document.createElement("button");
+                allBtn.className = "button";
+                allBtn.textContent = "All Topics";
+                allBtn.onclick = () => {
+                    selectedMainTopic = ""; 
+                    loadVideos();
+                };
+                content.appendChild(allBtn);
+                return;
+            }
+
+            // Show videos
+            let videos = snapshot.docs
+                .filter(d=>{
+                    const data = d.data();
+                    const gradeMatch = selectedGrade === "" || data.grade == selectedGrade;
+                    const topicMatch = selectedMainTopic === null || selectedMainTopic === "" || data.mainTopic == selectedMainTopic;
+                    return gradeMatch && topicMatch;
+                })
+                .map(doc=>{
+                    const data = doc.data();
+                    return {
+                        id: doc.id,
+                        title: data.title,
+                        link: data.link,
+                        order: data.order || 999
+                    };
+                });
+
+            videos.sort((a,b)=>a.order - b.order);
+
+            if(videos.length === 0){
+                content.innerHTML = "<p>No videos found for this selection</p>";
+                return;
+            }
+
+            videos.forEach(video=>{
+                const card = document.createElement("div");
+                card.className = "file-card";
+                card.textContent = `${video.order !== 999 ? video.order + ". " : ""}${video.title}`;
+                card.onclick = () => openVideo(video.link);
+                content.appendChild(card);
+            });
+
+        } else {
+            // --- Other subjects: Main Topics → Videos ---
+            const mainTopics = [...new Set(snapshot.docs.map(d => d.data().mainTopic || ""))].filter(t=>t);
+            mainTopics.sort();
+
+            if(!selectedMainTopic && mainTopics.length>0){
+                mainTopics.forEach(topic=>{
+                    const btn = document.createElement("button");
+                    btn.className = "button";
+                    btn.textContent = topic;
+                    btn.onclick = () => {
+                        selectedMainTopic = topic;
+                        loadVideos();
+                    };
+                    content.appendChild(btn);
+                });
+
+                const allBtn = document.createElement("button");
+                allBtn.className = "button";
+                allBtn.textContent = "All Videos";
+                allBtn.onclick = () => {
+                    selectedMainTopic = ""; 
+                    loadVideos();
+                };
+                content.appendChild(allBtn);
+            } else {
+                let videos = snapshot.docs.map(doc=>{
+                    const data = doc.data();
+                    return {
+                        id: doc.id,
+                        title: data.title,
+                        link: data.link,
+                        order: data.order || 999,
+                        mainTopic: data.mainTopic || ""
+                    };
+                });
+
+                if(selectedMainTopic !== null){
+                    videos = videos.filter(v=>v.mainTopic === selectedMainTopic || selectedMainTopic === "");
+                }
+
+                videos.sort((a,b)=>a.order - b.order);
+
+                if(videos.length === 0){
+                    content.innerHTML = "<p>No videos found for this topic</p>";
+                    return;
+                }
+
+                videos.forEach(video=>{
+                    const card = document.createElement("div");
+                    card.className = "file-card";
+                    card.textContent = `${video.order !== 999 ? video.order + ". " : ""}${video.title}`;
+                    card.onclick = () => openVideo(video.link);
+                    content.appendChild(card);
+                });
+            }
+        }
     });
 }
 
@@ -234,7 +367,7 @@ function openVideo(link){
     const id = extractDriveId(link);
     if(id){
         previewIframe.src = `https://drive.google.com/file/d/${id}/preview`;
-        previewContainer.style.display = "block"; // half-screen popup
+        previewContainer.style.display = "block"; 
     } else {
         alert("Invalid video link");
     }
