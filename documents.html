@@ -142,6 +142,8 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
 let selectedSubject = null;
+let selectedGrade = null;
+let selectedMainTopic = null;
 
 const content = document.getElementById("content");
 const backBtn = document.getElementById("backBtn");
@@ -155,8 +157,16 @@ closePreview.onclick = () => {
 };
 
 backBtn.onclick = () => {
-    selectedSubject = null;
-    loadSubjects();
+    if(selectedMainTopic){
+        selectedMainTopic = null;
+        loadFiles();
+    } else if(selectedGrade){
+        selectedGrade = null;
+        loadFiles();
+    } else {
+        selectedSubject = null;
+        loadSubjects();
+    }
 };
 
 // ---- SUBJECTS ----
@@ -166,7 +176,7 @@ function loadSubjects(){
 
     db.collection("documents").get().then(snapshot=>{
         const subjects = [...new Set(snapshot.docs.map(d => d.data().subject))];
-        subjects.sort(); // optional: alphabetical
+        subjects.sort();
 
         if(subjects.length === 0){
             content.innerHTML = "<p>No documents uploaded yet.</p>";
@@ -200,36 +210,171 @@ function loadFiles(){
             return;
         }
 
-        // Sort by order, push missing order to end
-        const files = snapshot.docs.map(doc=>{
-            const data = doc.data();
-            return {
-                id: doc.id,
-                title: data.title,
-                link: data.link,
-                order: data.order || 999
-            };
-        });
+        if(selectedSubject === "BIOLOGY"){
+            // --- Biology: Grades → Main Topics → Files ---
+            const grades = [...new Set(snapshot.docs.map(d => d.data().grade))].filter(g=>g).sort();
+            if(!selectedGrade){
+                // show grade buttons
+                grades.forEach(grade=>{
+                    const btn = document.createElement("button");
+                    btn.className = "button";
+                    btn.textContent = "Grade " + grade;
+                    btn.onclick = () => {
+                        selectedGrade = grade;
+                        loadFiles();
+                    };
+                    content.appendChild(btn);
+                });
 
-        files.sort((a,b)=>a.order - b.order);
+                // All documents button
+                const allBtn = document.createElement("button");
+                allBtn.className = "button";
+                allBtn.textContent = "All Grades";
+                allBtn.onclick = () => {
+                    selectedGrade = ""; // show all
+                    loadFiles();
+                };
+                content.appendChild(allBtn);
+                return;
+            }
 
-        files.forEach(file=>{
-            const card = document.createElement("div");
-            card.className = "file-card";
-            card.textContent = `${file.order !== 999 ? file.order + ". " : ""}${file.title}`;
+            // --- Main Topics ---
+            const mainTopics = [...new Set(snapshot.docs
+                .filter(d=>selectedGrade==="" || d.data().grade==selectedGrade)
+                .map(d => d.data().mainTopic || ""))].filter(t=>t).sort();
 
-            card.onclick = () => {
-                const id = extractDriveId(file.link);
-                if(id){
-                    previewIframe.src = `https://drive.google.com/file/d/${id}/preview`;
-                    previewContainer.style.display = "block";
-                } else {
-                    alert("Invalid file link");
+            if(!selectedMainTopic && mainTopics.length>0){
+                mainTopics.forEach(topic=>{
+                    const btn = document.createElement("button");
+                    btn.className = "button";
+                    btn.textContent = topic;
+                    btn.onclick = () => {
+                        selectedMainTopic = topic;
+                        loadFiles();
+                    };
+                    content.appendChild(btn);
+                });
+
+                // All Topics button
+                const allBtn = document.createElement("button");
+                allBtn.className = "button";
+                allBtn.textContent = "All Topics";
+                allBtn.onclick = () => {
+                    selectedMainTopic = ""; // show all
+                    loadFiles();
+                };
+                content.appendChild(allBtn);
+                return;
+            }
+
+            // --- Show Files ---
+            let files = snapshot.docs
+                .filter(d=>{
+                    const data = d.data();
+                    const gradeMatch = selectedGrade === "" || data.grade == selectedGrade;
+                    const topicMatch = selectedMainTopic === null || selectedMainTopic === "" || data.mainTopic == selectedMainTopic;
+                    return gradeMatch && topicMatch;
+                })
+                .map(doc=>{
+                    const data = doc.data();
+                    return {
+                        id: doc.id,
+                        title: data.title,
+                        link: data.link,
+                        order: data.order || 999
+                    };
+                });
+
+            files.sort((a,b)=>a.order - b.order);
+
+            if(files.length === 0){
+                content.innerHTML = "<p>No documents found for this selection</p>";
+                return;
+            }
+
+            files.forEach(file=>{
+                const card = document.createElement("div");
+                card.className = "file-card";
+                card.textContent = `${file.order !== 999 ? file.order + ". " : ""}${file.title}`;
+                card.onclick = () => {
+                    const id = extractDriveId(file.link);
+                    if(id){
+                        previewIframe.src = `https://drive.google.com/file/d/${id}/preview`;
+                        previewContainer.style.display = "block";
+                    } else {
+                        alert("Invalid file link");
+                    }
+                };
+                content.appendChild(card);
+            });
+
+        } else {
+            // --- Other subjects ---
+            // Collect unique main topics
+            const mainTopics = [...new Set(snapshot.docs.map(d => d.data().mainTopic || ""))].filter(t=>t);
+            mainTopics.sort();
+
+            if(!selectedMainTopic && mainTopics.length>0){
+                mainTopics.forEach(topic=>{
+                    const btn = document.createElement("button");
+                    btn.className = "button";
+                    btn.textContent = topic;
+                    btn.onclick = () => {
+                        selectedMainTopic = topic;
+                        loadFiles();
+                    };
+                    content.appendChild(btn);
+                });
+
+                const allBtn = document.createElement("button");
+                allBtn.className = "button";
+                allBtn.textContent = "All Documents";
+                allBtn.onclick = () => {
+                    selectedMainTopic = ""; // show all
+                    loadFiles();
+                };
+                content.appendChild(allBtn);
+            } else {
+                // Show documents filtered by mainTopic
+                let files = snapshot.docs.map(doc=>{
+                    const data = doc.data();
+                    return {
+                        id: doc.id,
+                        title: data.title,
+                        link: data.link,
+                        order: data.order || 999,
+                        mainTopic: data.mainTopic || ""
+                    };
+                });
+
+                if(selectedMainTopic !== null){
+                    files = files.filter(f=>f.mainTopic === selectedMainTopic || selectedMainTopic === "");
                 }
-            };
 
-            content.appendChild(card);
-        });
+                files.sort((a,b)=>a.order - b.order);
+
+                if(files.length === 0){
+                    content.innerHTML = "<p>No documents found for this topic</p>";
+                    return;
+                }
+
+                files.forEach(file=>{
+                    const card = document.createElement("div");
+                    card.className = "file-card";
+                    card.textContent = `${file.order !== 999 ? file.order + ". " : ""}${file.title}`;
+                    card.onclick = () => {
+                        const id = extractDriveId(file.link);
+                        if(id){
+                            previewIframe.src = `https://drive.google.com/file/d/${id}/preview`;
+                            previewContainer.style.display = "block";
+                        } else {
+                            alert("Invalid file link");
+                        }
+                    };
+                    content.appendChild(card);
+                });
+            }
+        }
     });
 }
 
