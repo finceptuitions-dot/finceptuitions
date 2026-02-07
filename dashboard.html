@@ -143,7 +143,7 @@ auth.onAuthStateChanged(function(user){
                 document.getElementById('hamburger-username').textContent = data.name;
 
                 // Start trial countdown
-                startTrialCountdown(data.trialStart || data.createdAt, data.trialDays || 3, user.uid);
+                startTrialCountdown(data.trialStart || data.createdAt, data.trialDays || 7, user.uid);
             }
         });
     } else {
